@@ -3,6 +3,9 @@
 
 ZWindow::ZWindow()
 {
+	WNDCLASSEX wc = { };
+	wc.cbSize = sizeof(WNDCLASSEX);
+	wc.lpszClassName = L"ZenithWindow";
 }
 
 ZWindow::~ZWindow()
