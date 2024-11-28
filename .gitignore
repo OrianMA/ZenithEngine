@@ -24,15 +24,7 @@
 *.out
 *.app
 
-# CMake generated files
-CMakeFiles/
-CMakeCache.txt
-cmake_install.cmake
-Makefile
-*.ninja
-*.vcxproj*
-*.sln
-*.idea/
+
 
 # IDE-specific files
 .vscode/
