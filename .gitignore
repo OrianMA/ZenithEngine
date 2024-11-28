@@ -1,0 +1,61 @@
+# Build directories
+/build/
+/bin/
+/out/
+
+# Compiled object files
+*.o
+*.obj
+*.lo
+*.slo
+
+# Compiled dynamic libraries
+*.dll
+*.so
+*.dylib
+
+# Compiled static libraries
+*.lib
+*.a
+*.la
+
+# Executable files
+*.exe
+*.out
+*.app
+
+# CMake generated files
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+*.ninja
+*.vcxproj*
+*.sln
+*.idea/
+
+# IDE-specific files
+.vscode/
+*.code-workspace
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+*.swp
+
+# System-specific files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Dependency management
+node_modules/
+.vcpkg/
+vendor/
+
+# Archive files
+*.tar
+*.zip
+*.7z
+*.rar
