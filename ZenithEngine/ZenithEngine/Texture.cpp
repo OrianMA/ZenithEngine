@@ -8,6 +8,12 @@ Texture::Texture(const char* image, GLenum texType, GLenum slot, GLenum format, 
     stbi_set_flip_vertically_on_load(true);
     unsigned char* bytes = stbi_load(image, &widthImg, &heightImg, &numColCh, 0);
 
+    if (!bytes) {
+        std::cerr << "Échec du chargement de l'image : " << image << std::endl;
+        return;
+    }
+
+
     glGenTextures(1, &ID);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(texType, ID);
@@ -27,7 +33,7 @@ Texture::Texture(const char* image, GLenum texType, GLenum slot, GLenum format, 
 
 }
 
-void Texture::texUnit(Shader shader, const char* uniform, GLuint unit)
+void Texture::texUnit(Shader& shader, const char* uniform, GLuint unit)
 {
     GLuint tex0uni = glGetUniformLocation(shader.ID, uniform);
     shader.Activate();
