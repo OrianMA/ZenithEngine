@@ -13,7 +13,6 @@ Texture::Texture(const char* image, GLenum texType, GLenum slot, GLenum format, 
         return;
     }
 
-
     glGenTextures(1, &ID);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(texType, ID);

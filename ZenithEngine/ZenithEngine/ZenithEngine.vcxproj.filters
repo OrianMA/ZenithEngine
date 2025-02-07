@@ -83,5 +83,8 @@
     <Image Include="Cat.png">
       <Filter>Fichiers de ressources\Textures</Filter>
     </Image>
+    <Image Include="pop_cat_close.jpg">
+      <Filter>Fichiers de ressources\Textures</Filter>
+    </Image>
   </ItemGroup>
 </Project>

@@ -11,6 +11,7 @@
 #include "VAO.h"
 #include "VBO.h"
 #include "EBO.h"
+#include "Camera.h"
 
 const unsigned int width = 800;
 const unsigned int height = 800;
@@ -93,27 +94,34 @@ int main() {
     glBindVertexArray(0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     
-    float angle = 10;
+    float angle = .1f;
     float colorResult = 0;
-    float rotation = 0.0f;
 
+    float textureChangeDelay = 1.0f;
+    float tempDelay = 0;
+
+    bool catSwap = false;
 
     //Texture
     Texture cat("pop_cat.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
     cat.texUnit(shaderProgram, "tex0", 0);
 
-    glEnable(GL_DEPTH_TEST);
+    Texture newCat("pop_cat_close.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+    newCat.texUnit(shaderProgram, "tex0", 0);
+
+    glEnable(GL_DEPTH_TEST);    
+
+    Camera camera(width, height, glm::vec3(0.0f, 0.0f, 2.0f));
 
     // Boucle de rendu
     while (!glfwWindowShouldClose(window)) {
         double prev_time = glfwGetTime();
         //double deltaTime = glfwGetTime() - prev_time;
 
-        rotation += deltaTime() * 10;
 
-        
+
+
         colorResult += deltaTime() * angle;
-        std::cout << rotation << std::endl;
         //Clean the back buffer and assign the new color to it
         glClearColor(float(sin(colorResult)), float(cos(colorResult)), float(tan(colorResult)), 1);
         //Swap the back buffer with the front buffer
@@ -122,25 +130,25 @@ int main() {
         // Tell OpenGL which Shader Program we want tu use
         shaderProgram.Activate();
 
-        //3D GLM
-        glm::mat4 model = glm::mat4(1.0f);
-        glm::mat4 view = glm::mat4(1.0f);
-        glm::mat4 proj = glm::mat4(1.0f);
+        camera.Inputs(window);  
+        camera.Matrix(45.0f, 0.1f, 100.0f, shaderProgram, "camMatrix");
 
-        model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
-        view = glm::translate(view, glm::vec3(0.0f, -.5f, -2.0f));
-        proj = glm::perspective(glm::radians(45.0f), (float)(width / height), 0.1f, 100.0f);
+        if (tempDelay > textureChangeDelay) {
+            catSwap = !catSwap;
+            tempDelay = 0;
+        }
+        else {
+            std::cout << tempDelay << std::endl;
+            if (catSwap) {
+                newCat.Bind();
+            }
+            else {
+                cat.Bind();
+            }
+        }
 
-        int modelLoc = glGetUniformLocation(shaderProgram.ID, "model");
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        int viewLoc = glGetUniformLocation(shaderProgram.ID, "view");
-        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-        int projLoc = glGetUniformLocation(shaderProgram.ID, "proj");
-        glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
+        tempDelay += deltaTime() * 300;
 
-
-        glUniform1f(uniId, 0.5f);
-        cat.Bind();
         // Bind the VAO so OpenGL know to use it
         VAO1.Bind();
         // Draw the triangle using the GL_TRIANGLE primitive
