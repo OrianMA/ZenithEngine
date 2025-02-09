@@ -12,9 +12,12 @@
 #include "VBO.h"
 #include "EBO.h"
 #include "Camera.h"
+#include <chrono>
 
 const unsigned int width = 800;
 const unsigned int height = 800;
+
+float deltaTime = 0.0f;
 
 GLfloat vertices[] =
 { //     COORDINATES     /        COLORS      /   TexCoord  //
@@ -36,16 +39,14 @@ GLuint indices[] =
     3, 0, 4
 };
 
-double deltaTime() {
-    double prev_time = glfwGetTime();
-    glFinish();
-    double deltaTime = glfwGetTime() - prev_time;
-    return deltaTime;
+void updateDeltaTime() {
+    static auto lastTimePoint = std::chrono::high_resolution_clock::now();
+    auto currentTimePoint = std::chrono::high_resolution_clock::now();
+
+    deltaTime = std::chrono::duration<float>(currentTimePoint - lastTimePoint).count();
+    lastTimePoint = currentTimePoint;
 }
 
-double fixedDeltaTime() {
-
-}
 
 int main() {
     // Initialisation de GLFW
@@ -115,13 +116,14 @@ int main() {
 
     // Boucle de rendu
     while (!glfwWindowShouldClose(window)) {
-        double prev_time = glfwGetTime();
+        //double prev_time = glfwGetTime();
         //double deltaTime = glfwGetTime() - prev_time;
 
 
+        updateDeltaTime();
 
 
-        colorResult += deltaTime() * angle;
+        colorResult += deltaTime * angle;
         //Clean the back buffer and assign the new color to it
         glClearColor(float(sin(colorResult)), float(cos(colorResult)), float(tan(colorResult)), 1);
         //Swap the back buffer with the front buffer
@@ -147,7 +149,7 @@ int main() {
             }
         }
 
-        tempDelay += deltaTime() * 300;
+        tempDelay += deltaTime;
 
         // Bind the VAO so OpenGL know to use it
         VAO1.Bind();

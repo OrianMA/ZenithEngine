@@ -80,7 +80,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LibraryPath>C:\Users\orian\Documents\GitHub\ZenithEngine\vcpkg\installed\x64-windows\lib;$(LibraryPath)</LibraryPath>
-    <PublicIncludeDirectories>C:\Users\orian\Documents\GitHub\ZenithEngine\vcpkg\installed\x64-windows\include</PublicIncludeDirectories>
+    <PublicIncludeDirectories>C:\Users\orian\Documents\GitHub\ZenithEngine\vcpkg\installed\x64-windows\include;C:\Users\Grorian\Documents\GitHub\ZenithEngine\vcpkg\installed\x64-windows\include</PublicIncludeDirectories>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LibraryPath>C:\Users\orian\Documents\GitHub\ZenithEngine\vcpkg\installed\x64-windows\lib;$(LibraryPath)</LibraryPath>
@@ -125,7 +125,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\orian\Documents\GitHub\ZenithEngine\vcpkg\installed\x64-windows\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\orian\Documents\GitHub\ZenithEngine\vcpkg\installed\x64-windows\include;C:\Users\Grorian\Documents\GitHub\ZenithEngine\vcpkg\installed\x64-windows\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
