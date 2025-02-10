@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.1])
 
 set(CMAKE_TOOLCHAIN_FILE "../vcpkg/scripts/buildsystems/vcpkg.cmake" CACHE STRING "Path to vcpkg toolchain file")
 include(../vcpkg/scripts/buildsystems/vcpkg.cmake)
+include_directories("../vcpkg/installed/x64-windows/include")
 
 project(ZenithEngine VERSION 1.0 LANGUAGES CXX)
 
@@ -18,9 +19,6 @@ set(glad_DIR "../vcpkg/installed/x64-windows/share/glad")
 # Ajout des dépendances (vcpkg gère tout ça)
 find_package(glfw3 CONFIG REQUIRED)
 find_package(glad CONFIG REQUIRED)   # Glad
-find_package(stb CONFIG REQUIRED)
-find_package(glm CONFIG REQUIRED)
-target_link_libraries(ZenithEngine PRIVATE stb::stb)
 message(STATUS "glad found at: ${glad_DIR}")
 
 # Ajoute les fichiers source de ton projet

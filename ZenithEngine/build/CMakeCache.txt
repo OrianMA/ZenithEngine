@@ -265,6 +265,12 @@ _VCPKG_INSTALLED_DIR:PATH=C:/Users/orian/Documents/GitHub/ZenithEngine/ZenithEng
 //The directory containing a CMake configuration file for glfw3.
 glfw3_DIR:PATH=C:/Users/orian/Documents/GitHub/ZenithEngine/ZenithEngine/build/vcpkg_installed/x64-windows/share/glfw3
 
+//The directory containing a CMake configuration file for glm.
+glm_DIR:PATH=glm_DIR-NOTFOUND
+
+//The directory containing a CMake configuration file for stb.
+stb_DIR:PATH=stb_DIR-NOTFOUND
+
 
 ########################
 # INTERNAL cache entries
