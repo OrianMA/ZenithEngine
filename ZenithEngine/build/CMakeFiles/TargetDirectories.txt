@@ -1,0 +1,3 @@
+C:/Users/orian/Documents/GitHub/ZenithEngine/ZenithEngine/build/CMakeFiles/ZenithEngine.dir
+C:/Users/orian/Documents/GitHub/ZenithEngine/ZenithEngine/build/CMakeFiles/ALL_BUILD.dir
+C:/Users/orian/Documents/GitHub/ZenithEngine/ZenithEngine/build/CMakeFiles/ZERO_CHECK.dir

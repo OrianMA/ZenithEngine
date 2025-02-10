@@ -18,6 +18,9 @@ set(glad_DIR "../vcpkg/installed/x64-windows/share/glad")
 # Ajout des dépendances (vcpkg gère tout ça)
 find_package(glfw3 CONFIG REQUIRED)
 find_package(glad CONFIG REQUIRED)   # Glad
+find_package(stb CONFIG REQUIRED)
+find_package(glm CONFIG REQUIRED)
+target_link_libraries(ZenithEngine PRIVATE stb::stb)
 message(STATUS "glad found at: ${glad_DIR}")
 
 # Ajoute les fichiers source de ton projet
