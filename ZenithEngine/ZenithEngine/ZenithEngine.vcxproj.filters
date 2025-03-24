@@ -45,6 +45,9 @@
     <ClCompile Include="Camera.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EBO.h">
@@ -63,6 +66,9 @@
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
     <ClInclude Include="Camera.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
   </ItemGroup>
@@ -90,6 +96,12 @@
       <Filter>Fichiers de ressources\Textures</Filter>
     </Image>
     <Image Include="pop_cat_close.jpg">
+      <Filter>Fichiers de ressources\Textures</Filter>
+    </Image>
+    <Image Include="planks.png">
+      <Filter>Fichiers de ressources\Textures</Filter>
+    </Image>
+    <Image Include="planksSpec.png">
       <Filter>Fichiers de ressources\Textures</Filter>
     </Image>
   </ItemGroup>
