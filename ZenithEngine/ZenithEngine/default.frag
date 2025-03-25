@@ -1,4 +1,3 @@
-
 #version 330 core
 
 // Outputs colors in RGBA
@@ -107,5 +106,5 @@ vec4 spotLight()
 void main()
 {
 	// outputs final color
-	FragColor = spotLight();
+	FragColor = direcLight();
 }
