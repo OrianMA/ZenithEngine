@@ -42,8 +42,6 @@ int main()
 
 	// Generates Shader object using shaders default.vert and default.frag
 	Shader shaderProgram("default.vert", "default.frag");
-	// Shader for the outlining model
-	Shader outliningProgram("outlining.vert", "outlining.frag");
 
 	// Take care of all the light related things
 	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -61,71 +59,80 @@ int main()
 
 	// Enables the Depth Buffer
 	glEnable(GL_DEPTH_TEST);
-	// Enables the Stencil Buffer
-	glEnable(GL_STENCIL_TEST);
-	// Sets rules for outcomes of stecil tests
-	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+
+	//// Enables Cull Facing
+	//glEnable(GL_CULL_FACE);
+	//// Keeps front faces
+	//glCullFace(GL_FRONT);
+	//// Uses counter clock-wise standard
+	//glFrontFace(GL_CCW);
 
 	// Creates camera object
 	Camera camera(width, height, glm::vec3(0.0f, 0.0f, 2.0f));
 
 
+	/*
+	* I'm doing this relative path thing in order to centralize all the resources into one folder and not
+	* duplicate them between tutorial folders. You can just copy paste the resources from the 'Resources'
+	* folder and then give a relative path from this folder to whatever resource you want to get to.
+	* Also note that this requires C++17, so go to Project Properties, C/C++, Language, and select C++17
+	*/
 
 	// Load in models
-	Model model("Models/crow/scene.gltf");
-	Model outline("Models/crow-outline/scene.gltf");
+	Model model("Models/statue/scene.gltf");
+	//Model modelt("Models/trees/scene.gltf");
+
+
+	// Variables to create periodic event for FPS displaying
+	double prevTime = 0.0;
+	double crntTime = 0.0;
+	double timeDiff;
+	// Keeps track of the amount of frames in timeDiff
+	unsigned int counter = 0;
+
+	// Use this to disable VSync (not advized)
+	//glfwSwapInterval(0);
+
+
 
 	// Main while loop
 	while (!glfwWindowShouldClose(window))
 	{
+		// Updates counter and times
+		crntTime = glfwGetTime();
+		timeDiff = crntTime - prevTime;
+		counter++;
+
+		if (timeDiff >= 1.0 / 30.0)
+		{
+			// Creates new title
+			std::string FPS = std::to_string((1.0 / timeDiff) * counter);
+			std::string ms = std::to_string((timeDiff / counter) * 1000);
+			std::string newTitle = "ZenithEngine - " + FPS + "FPS / " + ms + "ms";
+			glfwSetWindowTitle(window, newTitle.c_str());
+
+			// Resets times and counter
+			prevTime = crntTime;
+			counter = 0;
+
+			// Use this if you have disabled VSync
+			//camera.Inputs(window);
+		}
+
 		// Specify the color of the background
 		glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
 		// Clean the back buffer and depth buffer
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// Handles camera inputs
+		// Handles camera inputs (delete this if you have disabled VSync)
 		camera.Inputs(window);
 		// Updates and exports the camera matrix to the Vertex Shader
 		camera.updateMatrix(45.0f, 0.1f, 100.0f);
 
 
-
-		// Make it so the stencil test always passes
-		glStencilFunc(GL_ALWAYS, 1, 0xFF);
-		// Enable modifying of the stencil buffer
-		glStencilMask(0xFF);
 		// Draw the normal model
 		model.Draw(shaderProgram, camera);
-
-		// Make it so only the pixels without the value 1 pass the test
-		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-		// Disable modifying of the stencil buffer
-		glStencilMask(0x00);
-		// Disable the depth buffer
-		glDisable(GL_DEPTH_TEST);
-
-
-		// First method from the tutorial
-		//outliningProgram.Activate();
-		//glUniform1f(glGetUniformLocation(outliningProgram.ID, "outlining"), 1.08f);
-		//model.Draw(outliningProgram, camera);
-
-		// Second method from the tutorial
-		//outliningProgram.Activate();
-		//glUniform1f(glGetUniformLocation(outliningProgram.ID, "outlining"), 0.08f);
-		//model.Draw(outliningProgram, camera);
-
-		// Third method from the tutorial
-		outline.Draw(outliningProgram, camera);
-
-
-		// Enable modifying of the stencil buffer
-		glStencilMask(0xFF);
-		// Clear stencil buffer
-		glStencilFunc(GL_ALWAYS, 0, 0xFF);
-		// Enable the depth buffer
-		glEnable(GL_DEPTH_TEST);
-
+		//modelt.Draw(shaderProgram, camera);
 
 
 		// Swap the back buffer with the front buffer
@@ -138,7 +145,6 @@ int main()
 
 	// Delete all the objects we've created
 	shaderProgram.Delete();
-	outliningProgram.Delete();
 	// Delete window before ending the program
 	glfwDestroyWindow(window);
 	// Terminate GLFW before ending the program
