@@ -60,23 +60,16 @@ int main()
 	// Enables the Depth Buffer
 	glEnable(GL_DEPTH_TEST);
 
-	//// Enables Cull Facing
-	//glEnable(GL_CULL_FACE);
-	//// Keeps front faces
-	//glCullFace(GL_FRONT);
-	//// Uses counter clock-wise standard
-	//glFrontFace(GL_CCW);
+	// Enables Cull Facing
+	glEnable(GL_CULL_FACE);
+	// Keeps front faces
+	glCullFace(GL_FRONT);
+	// Uses counter clock-wise standard
+	glFrontFace(GL_CCW);
 
 	// Creates camera object
 	Camera camera(width, height, glm::vec3(0.0f, 0.0f, 2.0f));
 
-
-	/*
-	* I'm doing this relative path thing in order to centralize all the resources into one folder and not
-	* duplicate them between tutorial folders. You can just copy paste the resources from the 'Resources'
-	* folder and then give a relative path from this folder to whatever resource you want to get to.
-	* Also note that this requires C++17, so go to Project Properties, C/C++, Language, and select C++17
-	*/
 
 	// Load in models
 	Model model("Models/statue/scene.gltf");
@@ -108,7 +101,7 @@ int main()
 			// Creates new title
 			std::string FPS = std::to_string((1.0 / timeDiff) * counter);
 			std::string ms = std::to_string((timeDiff / counter) * 1000);
-			std::string newTitle = "ZenithEngine - " + FPS + "FPS / " + ms + "ms";
+			std::string newTitle = "YoutubeOpenGL - " + FPS + "FPS / " + ms + "ms";
 			glfwSetWindowTitle(window, newTitle.c_str());
 
 			// Resets times and counter
@@ -132,7 +125,6 @@ int main()
 
 		// Draw the normal model
 		model.Draw(shaderProgram, camera);
-		//modelt.Draw(shaderProgram, camera);
 
 
 		// Swap the back buffer with the front buffer

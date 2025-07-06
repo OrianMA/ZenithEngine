@@ -22,6 +22,8 @@ set(glad_DIR "../vcpkg/installed/x64-windows/share/glad")
 find_package(glfw3 CONFIG REQUIRED)
 find_package(glad CONFIG REQUIRED)   # Glad
 find_package(nlohmann_json 3.11.3 REQUIRED)
+find_package(nlohmann_json CONFIG REQUIRED)
+    target_link_libraries(main PRIVATE nlohmann_json::nlohmann_json)
 message(STATUS "glad found at: ${glad_DIR}")
 
 # Ajoute les fichiers source de ton projet
