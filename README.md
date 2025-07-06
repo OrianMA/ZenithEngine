@@ -1,99 +1,99 @@
 # ZenithEngine
 
 ## 1. Introduction
-ZenithEngine est un moteur de rendu 3D minimaliste écrit en C++ utilisant OpenGL 3.3. Il permet de charger et d'afficher des modèles 3D au format glTF, avec gestion des shaders, textures, caméras et éclairage de base. Le projet est conçu pour être pédagogique, modulaire et facilement extensible, idéal pour l'apprentissage ou comme base pour des projets graphiques plus avancés.
+ZenithEngine is a minimalist 3D rendering engine written in C++ using OpenGL 3.3. It allows loading and displaying 3D models in glTF format, with shader management, textures, cameras, and basic lighting. The project is designed to be educational, modular, and easily extensible, perfect for learning or as a foundation for more advanced graphics projects.
 
-## 2. Installation, Compilation et Test
+## 2. Installation, Compilation and Testing
 
-### Prérequis
+### Prerequisites
 - CMake >= 3.20
-- Un compilateur C++ compatible C++20
-- [vcpkg](https://github.com/microsoft/vcpkg) pour la gestion des dépendances
+- A C++ compiler compatible with C++20
+- [vcpkg](https://github.com/microsoft/vcpkg) for dependency management
 - OpenGL 3.3+
 
-### Dépendances principales (gérées par vcpkg)
+### Main Dependencies (managed by vcpkg)
 - glfw3
 - glad
 - nlohmann_json
 
-### Installation des dépendances
-Dans le dossier racine du projet :
+### Installing Dependencies
+In the project root directory:
 ```sh
 vcpkg install glfw3 glad nlohmann-json
 ```
 
 ### Compilation
-1. Cloner le dépôt et ouvrir un terminal dans le dossier `ZenithEngine`.
-2. Générer les fichiers de build avec CMake :
+1. Clone the repository and open a terminal in the `ZenithEngine` folder.
+2. Generate build files with CMake:
    ```sh
    cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake
    ```
-3. Compiler :
+3. Compile:
    ```sh
    cmake --build build
    ```
-4. L'exécutable sera généré dans `build/` ou selon la configuration de votre IDE.
+4. The executable will be generated in `build/` or according to your IDE configuration.
 
-### Lancement
-Placez les modèles glTF (ex : `scene.gltf` et ses ressources) dans `ZenithEngine/ZenithEngine/Models/` puis lancez l'exécutable :
+### Running
+Place your glTF models (e.g., `scene.gltf` and its resources) in `ZenithEngine/ZenithEngine/Models/` then run the executable:
 ```sh
 ./build/ZenithEngine
 ```
 
-### Test
-Aucun test automatisé n'est fourni pour l'instant. Le test principal consiste à lancer l'application et vérifier l'affichage du modèle 3D.
+### Testing
+No automated tests are provided at the moment. The main test consists of launching the application and verifying the 3D model display.
 
-## 3. Vue d'ensemble de l'architecture du code
+## 3. Code Architecture Overview
 
-Le cœur du moteur est organisé autour de plusieurs classes principales :
+The engine core is organized around several main classes:
 
-- **Model** : Gère le chargement, le parsing (via nlohmann_json) et le rendu des modèles glTF. Il traverse la hiérarchie de nœuds et instancie les Mesh associés.
-- **Mesh** : Représente une géométrie 3D, encapsule les buffers OpenGL (VAO, VBO, EBO) et les textures.
-- **Shader** : Gère la compilation, l'activation et la suppression des programmes de shaders OpenGL (vertex/fragment).
-- **Camera** : Gère la vue, la projection et les contrôles utilisateur (déplacement, orientation).
-- **Texture** : Charge et gère les textures associées aux modèles.
+- **Model**: Manages loading, parsing (via nlohmann_json), and rendering of glTF models. It traverses the node hierarchy and instantiates associated Meshes.
+- **Mesh**: Represents 3D geometry, encapsulates OpenGL buffers (VAO, VBO, EBO) and textures.
+- **Shader**: Manages compilation, activation, and deletion of OpenGL shader programs (vertex/fragment).
+- **Camera**: Handles view, projection, and user controls (movement, orientation).
+- **Texture**: Loads and manages textures associated with models.
 
-L'entrée principale du programme (`ZenithEngine.cpp`) :
-- Initialise GLFW/GLAD et la fenêtre OpenGL
-- Charge un modèle glTF
-- Configure la caméra et l'éclairage
-- Boucle de rendu : gestion des entrées, mise à jour de la caméra, dessin du modèle
+The main program entry point (`ZenithEngine.cpp`):
+- Initializes GLFW/GLAD and the OpenGL window
+- Loads a glTF model
+- Configures camera and lighting
+- Rendering loop: input handling, camera updates, model drawing
 
-Arborescence simplifiée :
+Simplified directory structure:
 ```
 ZenithEngine/
-  ├── ZenithEngine.cpp         # Point d'entrée principal
-  ├── Model.h/.cpp            # Gestion des modèles glTF
-  ├── Mesh.h/.cpp             # Gestion des maillages
-  ├── shaderClass.h/.cpp      # Gestion des shaders
-  ├── Camera.h/.cpp           # Caméra et contrôles
+  ├── ZenithEngine.cpp         # Main entry point
+  ├── Model.h/.cpp            # glTF model management
+  ├── Mesh.h/.cpp             # Mesh management
+  ├── shaderClass.h/.cpp      # Shader management
+  ├── Camera.h/.cpp           # Camera and controls
   ├── Texture.h/.cpp          # Textures
-  ├── Models/                 # Modèles 3D glTF
+  ├── Models/                 # 3D glTF models
   └── ...
 ```
 
-## 4. Mini-guide utilisateur & développeur
+## 4. Mini User & Developer Guide
 
-### Utilisateur
-- Placez vos modèles glTF dans `ZenithEngine/ZenithEngine/Models/`.
-- Par défaut, le fichier chargé est `Models/statue/scene.gltf` (modifiable dans `ZenithEngine.cpp`).
-- Contrôles caméra : utilisez la souris et le clavier (voir implémentation dans `Camera.cpp`).
-- L'application affiche le FPS dans le titre de la fenêtre.
+### User
+- Place your glTF models in `ZenithEngine/ZenithEngine/Models/`.
+- By default, the loaded file is `Models/statue/scene.gltf` (modifiable in `ZenithEngine.cpp`).
+- Camera controls: use mouse and keyboard (see implementation in `Camera.cpp`).
+- The application displays FPS in the window title.
 
-### Développeur
-- Pour ajouter un nouveau modèle, modifiez la ligne :
+### Developer
+- To add a new model, modify the line:
   ```cpp
   Model model("Models/statue/scene.gltf");
   ```
-- Pour ajouter des fonctionnalités (nouveaux shaders, effets, contrôles), étendez les classes existantes ou ajoutez-en de nouvelles.
-- Les shaders sont dans des fichiers `.vert` et `.frag` (ex : `default.vert`, `default.frag`).
-- Les dépendances sont gérées via vcpkg et CMake.
+- To add features (new shaders, effects, controls), extend existing classes or add new ones.
+- Shaders are in `.vert` and `.frag` files (e.g., `default.vert`, `default.frag`).
+- Dependencies are managed via vcpkg and CMake.
 
-### Limitations connues
-- Seul le format glTF est supporté pour les modèles.
-- Pas de gestion avancée des animations ou des matériaux complexes.
-- Pas de tests unitaires intégrés.
+### Known Limitations
+- Only glTF format is supported for models.
+- No advanced animation or complex material management.
+- No integrated unit tests.
 
 ---
 
-Pour toute contribution ou question, ouvrez une issue ou une pull request sur le dépôt GitHub. 
+For any contribution or question, open an issue or pull request on the GitHub repository. 
