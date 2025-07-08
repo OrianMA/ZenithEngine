@@ -6,7 +6,7 @@ L’intégration continue (CI) permet d’automatiser les tests et vérification
 
 - Git est utilisé comme système de gestion de sources
 - GitHub Actions est configuré pour exécuter automatiquement les tests à chaque push
-- Pour l’instant, les modifications sont directement poussées sur la branche principale sans passer par des Pull Requests
+- Pour l’instant, les modifications sont directement poussées sur la branche principale sans passer par des Pull Requests (raison : solo dev)
 - Le formatage automatique avec `clang-format` n’est pas encore mis en place, le code est formaté manuellement
 - Les tests unitaires permettent d’identifier rapidement les régressions
 - Une évolution vers une stratégie avec Pull Requests et formatage automatique est envisagée pour améliorer la qualité du code et le processus collaboratif
