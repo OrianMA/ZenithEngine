@@ -23,7 +23,11 @@
 
 **Outils qualité & performance :**
 
-- Valgrind (détection de fuites mémoire)
-- RenderDoc (analyse des appels GPU)
-- clang-tidy (analyse statique du code)
-- GitHub Actions (CI)
+- Valgrind : non encore utilisé, mais utile pour identifier les fuites mémoire si nécessaire
+- RenderDoc outil de profiling graphique repéré pour le debug GPU (à envisager lors de tests visuels poussés)
+- clang-tidy : envisagé pour l’analyse statique du code C++ (intégrable dans CMake)
+- GitHub Actions : utilisé pour exécuter la CI à chaque commit (compilation + tests unitaires)
+
+Ces outils s’inscrivent dans une démarche qualité, même s’ils ne sont pas tous encore pleinement utilisés dans ce prototype.
+
+
