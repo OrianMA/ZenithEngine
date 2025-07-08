@@ -7,6 +7,9 @@
   - Générer des artefacts (archives compressées)
   - Exécuter les tests
 
+*Artefacts* : Un artefact est un fichier généré automatiquement lors de la compilation du projet, comme un exécutable, une bibliothèque ou une archive.
+Il est utilisé pour tester, distribuer ou stocker une version du logiciel sans avoir à le recompiler manuellement.
+
 **Étapes du pipeline :**
 
 1. Checkout du dépôt
