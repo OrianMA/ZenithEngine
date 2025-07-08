@@ -1,14 +1,12 @@
-# 03 - Intégration continue
+## 03 - Intégration continue
 
-**Objectif :** tester les modifications en temps réel lors des push ou pull requests
+L’intégration continue (CI) permet d’automatiser les tests et vérifications du projet à chaque modification du code, afin de détecter rapidement les erreurs et garantir une base de code stable.
 
-- Git comme système de gestion de sources
-- GitHub Actions comme outil CI
-- Stratégie : merge via Pull Requests uniquement après validation des tests
-- Formatage automatisé via `clang-format`
-- Analyse de régression avec test unitaires
+**Objectif :** tester les modifications en temps réel lors des push
 
-**Architecture logicielle :**
-
-- Composants modulaires (rendu, chargement de ressources, interface, etc.)
-- Chaque module a ses propres tests
+- Git est utilisé comme système de gestion de sources
+- GitHub Actions est configuré pour exécuter automatiquement les tests à chaque push
+- Pour l’instant, les modifications sont directement poussées sur la branche principale sans passer par des Pull Requests
+- Le formatage automatique avec `clang-format` n’est pas encore mis en place, le code est formaté manuellement
+- Les tests unitaires permettent d’identifier rapidement les régressions
+- Une évolution vers une stratégie avec Pull Requests et formatage automatique est envisagée pour améliorer la qualité du code et le processus collaboratif
