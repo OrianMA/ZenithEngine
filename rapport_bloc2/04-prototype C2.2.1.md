@@ -5,7 +5,7 @@
 - Fenêtre OpenGL avec rendu de maillage 3D simple
 - Gestion des shaders GLSL
 - Contrôle caméra FPS
-- Chargement d’un modèle `.obj`
+- Chargement d’un modèle (actuellement au format `.fbx`)
 
 **Ergonomie :**
 
