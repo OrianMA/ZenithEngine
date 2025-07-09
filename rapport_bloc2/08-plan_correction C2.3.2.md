@@ -2,7 +2,7 @@
 
 **Méthodologie :**
 
-- Rédaction d’issues GitHub pour chaque anomalie détectée
+- Rédaction d’issues pour chaque anomalie détectée
 - Attribution d’un label `bug`
 - Priorisation : Critique / Majeur / Mineur
 - Chaque bug corrigé est lié à une Pull Request contenant un test associé
