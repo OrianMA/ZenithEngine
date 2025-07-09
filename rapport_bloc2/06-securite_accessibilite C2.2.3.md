@@ -1,13 +1,19 @@
-# 06 - Sécurité & Accessibilité
+## 06 - Sécurité & Accessibilité
 
-**Mesures de sécurité (OWASP)** :
+### Sécurité :
 
-- Validation stricte des chemins utilisateurs
-- Limitation des formats chargés (pas de DLL dynamiques, pas de script)
-- Compilation avec les flags `-fstack-protector`, `-D_FORTIFY_SOURCE`
+Des premières précautions ont été prises pour éviter certains comportements dangereux :
+- Les chemins utilisateurs sont validés avant ouverture de fichiers (pas de `../` non vérifiés)
+- Seuls les fichiers de modèles au format prévu sont autorisés (`.fbx`, pas de scripts ou DLLs)
+- Le projet est compilé avec des options de sécurité de base (`-Wall`, `-Wextra`)
 
-**Accessibilité :**
+> L’intégration de flags comme `-fstack-protector` ou `-D_FORTIFY_SOURCE` est envisagée pour renforcer la protection mémoire.
 
-- Interface compatible clavier uniquement (navigation sans souris)
-- Prévue pour adaptation écran contrasté (console, pas de GUI graphique encore)
-- Référentiel : OPQUAST – bonnes pratiques fondamentales d’accessibilité
+### Accessibilité :
+
+Le prototype ne dispose pas encore d’interface graphique, mais l'interaction via **le clavier uniquement** permet une utilisation simple :
+- Navigation sans souris
+- Interface console lisible et sobre
+- Prévue pour s’adapter à un affichage en haut contraste (via terminal)
+
+> Une réflexion future pourra porter sur des aspects plus poussés d’accessibilité (polices lisibles, contraste, support écran lecteur, etc.)
