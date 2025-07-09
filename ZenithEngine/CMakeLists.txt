@@ -31,6 +31,7 @@ add_executable(ZenithEngine
     ZenithEngine/ZenithEngine.cpp
 )
 add_library(foo ...)
+add_compile_options(-Wall -Wextra -fstack-protector -D_FORTIFY_SOURCE=2)
 
 # Lie les bibliothèques à ton exécutable
 target_link_libraries(ZenithEngine PRIVATE glfw glad)
