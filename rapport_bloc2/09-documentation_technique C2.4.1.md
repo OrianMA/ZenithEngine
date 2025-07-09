@@ -7,7 +7,21 @@
 
 **Manuel d’utilisation :**
 
-- Exécuter `./OpenGLDemo`
+#### Compilation via Visual Studio (ou VS Code) :
+- Ouvrir le dossier du projet dans Visual Studio
+- Laisser CMake configurer automatiquement
+- Sélectionner la cible `Debug` ou `Release`
+- Lancer la compilation (F7)
+- Lancer l’exécutable depuis l’IDE (Ctrl + F5)
+
+#### Compilation en ligne de commande (alternative) :
+```bash
+git clone https://github.com/OrianMA/ZenithEngine.git
+cd ZenithEngine\ZenithEngine
+mkdir build && cd build
+cmake ..
+make
+```
 - ZQSD pour se déplacer
 - ESC pour quitter
 
