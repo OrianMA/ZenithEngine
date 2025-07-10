@@ -102,15 +102,3 @@ For any contribution or question, open an issue or pull request on the GitHub re
 ## 📄 Rapport Bloc 2 – Documentation complète
 
 Le rapport détaillé du Bloc 2 (environnement, CI/CD, prototype, tests, etc.) est disponible dans le dossier [`rapport_bloc2`](./rapport_bloc2).
-
-### Fichiers inclus :
-
-- [01 - Environnement de développement](./rapport_bloc2/01-environnement_developpement.md)
-- [02 - Déploiement continu](./rapport_bloc2/02-deploiement_continu.md)
-- [03 - Intégration continue](./rapport_bloc2/03-integration_continue.md)
-- [04 - Prototype](./rapport_bloc2/04-prototype.md)
-- [05 - Tests unitaires](./rapport_bloc2/05-tests_unitaires.md)
-- [06 - Sécurité & Accessibilité](./rapport_bloc2/06-securite_accessibilite.md)
-- [07 - Cahier de recette](./rapport_bloc2/07-cahier_recette.md)
-- [08 - Plan de correction des bogues](./rapport_bloc2/08-plan_correction.md)
-- [09 - Documentation technique](./rapport_bloc2/09-documentation_technique.md)
