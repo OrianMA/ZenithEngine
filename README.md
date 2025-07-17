@@ -1,4 +1,4 @@
-# <img src="assets/Models/ZenithEngineLogo.png" alt="Zenith Engine Logo" width="80" align="left" /> Zenith Engine
+# <img src="assets/Models/ZenithEngineLogo.png" alt="Zenith Engine Logo" width="80" align="left"/> Zenith Engine
 
 **Zenith Engine** is an open-source, modern C++ game engine designed for learning, prototyping, and creative projects. Built with CMake and vcpkg, it aims to be simple, modular, and cross-platform, making it easy to get started and extend.
 
@@ -88,5 +88,5 @@ Zenith Engine is released under the MIT License. See [LICENSE](LICENSE) for deta
 
 ## Credits
 
-- Logo by [Your Name or Designer]
+- Logo by Ornella CAPEZZONE
 - Built with [GLFW](https://www.glfw.org/), [GLAD](https://glad.dav1d.de/), [stb](https://github.com/nothings/stb), [glm](https://github.com/g-truc/glm), [nlohmann/json](https://github.com/nlohmann/json)
