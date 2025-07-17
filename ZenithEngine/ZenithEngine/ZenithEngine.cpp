@@ -19,7 +19,7 @@ int main()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// Create a GLFWwindow object of 800 by 800 pixels, naming it "YoutubeOpenGL"
-	GLFWwindow* window = glfwCreateWindow(width, height, "YoutubeOpenGL", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(width, height, "Zenith Engine", NULL, NULL);
 	// Error check if the window fails to create
 	if (window == NULL)
 	{
@@ -72,8 +72,8 @@ int main()
 
 
 	// Load in models
+	//Model model("Models/statue/scene	.gltf");
 	Model model("Models/statue/scene.gltf");
-	//Model modelt("Models/trees/scene.gltf");
 
 
 	// Variables to create periodic event for FPS displaying
@@ -101,7 +101,7 @@ int main()
 			// Creates new title
 			std::string FPS = std::to_string((1.0 / timeDiff) * counter);
 			std::string ms = std::to_string((timeDiff / counter) * 1000);
-			std::string newTitle = "YoutubeOpenGL - " + FPS + "FPS / " + ms + "ms";
+			std::string newTitle = "Zenith Engine - " + FPS + "FPS / " + ms + "ms";
 			glfwSetWindowTitle(window, newTitle.c_str());
 
 			// Resets times and counter
