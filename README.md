@@ -1,9 +1,6 @@
 # <img src="assets/Models/ZenithEngineLogo.png" alt="Zenith Engine Logo" width="80" align="left" /> Zenith Engine
 
-
 **Zenith Engine** is an open-source, modern C++ game engine designed for learning, prototyping, and creative projects. Built with CMake and vcpkg, it aims to be simple, modular, and cross-platform, making it easy to get started and extend.
-
----
 
 ## Features
 
@@ -14,8 +11,6 @@
 - 🛠️ **CMake-based build system** (cross-platform)
 - 🧩 **Modular design** for easy extension
 - 📝 **Ready for open-source collaboration**
-
----
 
 ## Getting Started
 
@@ -50,8 +45,6 @@
 - The executable will be in `build/Release/ZenithEngine.exe` (or `build/Debug/` for debug builds).
 - All assets (models, shaders, textures) are in the `assets/` folder at the project root.
 
----
-
 ## Project Structure
 
 ```
@@ -70,8 +63,6 @@ ZenithEngine/
 └── ...
 ```
 
----
-
 ## Example Usage
 
 ```cpp
@@ -84,8 +75,6 @@ int main() {
 }
 ```
 
----
-
 ## Contributing
 
 Contributions are welcome! Feel free to fork the repo, open issues, or submit pull requests.
@@ -93,13 +82,9 @@ Contributions are welcome! Feel free to fork the repo, open issues, or submit pu
 - Keep code modular and well-documented
 - Add tests/examples if possible
 
----
-
 ## License
 
 Zenith Engine is released under the MIT License. See [LICENSE](LICENSE) for details.
-
----
 
 ## Credits
 
