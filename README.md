@@ -88,5 +88,5 @@ Zenith Engine is released under the MIT License. See [LICENSE](LICENSE) for deta
 
 ## Credits
 
-- Logo by Ornella CAPEZZONNE
+- Logo by Ornella CAPEZZONE
 - Built with [GLFW](https://www.glfw.org/), [GLAD](https://glad.dav1d.de/), [stb](https://github.com/nothings/stb), [glm](https://github.com/g-truc/glm), [nlohmann/json](https://github.com/nlohmann/json)
