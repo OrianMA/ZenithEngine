@@ -4,6 +4,7 @@
     "glad",
     "nlohmann-json",
     "glm",
-    "stb"
+    "stb",
+    "gtest"
   ]
 }
