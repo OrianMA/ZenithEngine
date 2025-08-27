@@ -1,5 +1,6 @@
 #include"Model.h"
 #include <string>
+#include <FBXModel.h>
 
 
 const unsigned int width = 800;
@@ -76,6 +77,8 @@ int main()
 	// Load in models
 	Model model((ASSETS_PATH + "Models/statue/scene.gltf").c_str());
 
+	FBXModel modelfbx((ASSETS_PATH + "Models/violin/violin.fbx").c_str());
+
 
 	// Variables to create periodic event for FPS displaying
 	double prevTime = 0.0;
@@ -126,6 +129,7 @@ int main()
 
 		// Draw the normal model
 		model.Draw(shaderProgram, camera);
+		modelfbx.Draw(shaderProgram, camera);
 
 
 		// Swap the back buffer with the front buffer
