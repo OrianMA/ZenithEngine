@@ -1,4 +1,5 @@
 #include"Texture.h"
+#include <stdexcept>
 
 Texture::Texture(const char* image, const char* texType, GLuint slot)
 {
@@ -17,11 +18,15 @@ Texture::Texture(const char* image, const char* texType, GLuint slot)
 	// Assigns the texture to a Texture Unit
 	glActiveTexture(GL_TEXTURE0 + slot);
 	unit = slot;
-	glBindTexture(GL_TEXTURE_2D, ID);
+        glBindTexture(GL_TEXTURE_2D, ID);
 
-	// Configures the type of algorithm that is used to make the image smaller or bigger
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        // Ensure textures are loaded with tight row alignment to avoid
+        // visible artifacts when the image width isn't a multiple of four bytes.
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+        // Configures the type of algorithm that is used to make the image smaller or bigger
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 	// Configures the way the texture repeats (if it does at all)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -32,45 +37,45 @@ Texture::Texture(const char* image, const char* texType, GLuint slot)
 	// glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, flatColor);
 
 	// Check what type of color channels the texture has and load it accordingly
-	if (numColCh == 4)
-		glTexImage2D
-		(
-			GL_TEXTURE_2D,
-			0,
-			GL_RGBA,
-			widthImg,
-			heightImg,
-			0,
-			GL_RGBA,
-			GL_UNSIGNED_BYTE,
-			bytes
-		);
-	else if (numColCh == 3)
-		glTexImage2D
-		(
-			GL_TEXTURE_2D,
-			0,
-			GL_RGBA,
-			widthImg,
-			heightImg,
-			0,
-			GL_RGB,
-			GL_UNSIGNED_BYTE,
-			bytes
-		);
-	else if (numColCh == 1)
-		glTexImage2D
-		(
-			GL_TEXTURE_2D,
-			0,
-			GL_RGBA,
-			widthImg,
-			heightImg,
-			0,
-			GL_RED,
-			GL_UNSIGNED_BYTE,
-			bytes
-		);
+        if (numColCh == 4)
+                glTexImage2D
+                (
+                        GL_TEXTURE_2D,
+                        0,
+                        GL_RGBA,
+                        widthImg,
+                        heightImg,
+                        0,
+                        GL_RGBA,
+                        GL_UNSIGNED_BYTE,
+                        bytes
+                );
+        else if (numColCh == 3)
+                glTexImage2D
+                (
+                        GL_TEXTURE_2D,
+                        0,
+                        GL_RGB,
+                        widthImg,
+                        heightImg,
+                        0,
+                        GL_RGB,
+                        GL_UNSIGNED_BYTE,
+                        bytes
+                );
+        else if (numColCh == 1)
+                glTexImage2D
+                (
+                        GL_TEXTURE_2D,
+                        0,
+                        GL_RED,
+                        widthImg,
+                        heightImg,
+                        0,
+                        GL_RED,
+                        GL_UNSIGNED_BYTE,
+                        bytes
+                );
 	else
 		throw std::invalid_argument("Automatic Texture type recognition failed");
 
