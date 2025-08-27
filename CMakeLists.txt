@@ -15,6 +15,7 @@ find_package(nlohmann_json CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
 find_package(Stb REQUIRED)
 find_package(GTest CONFIG REQUIRED)
+find_package(assimp CONFIG REQUIRED)
 
 # Récupérer tous les fichiers source du projet (sauf le main)
 file(GLOB_RECURSE ZENITHENGINE_SOURCES
@@ -28,7 +29,7 @@ list(REMOVE_ITEM ZENITHENGINE_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/ZenithEng
 add_library(ZenithEngineLib ${ZENITHENGINE_SOURCES})
 
 # Lier les bibliothèques à la bibliothèque
-target_link_libraries(ZenithEngineLib PRIVATE glfw glad::glad nlohmann_json::nlohmann_json glm::glm)
+target_link_libraries(ZenithEngineLib PRIVATE glfw glad::glad nlohmann_json::nlohmann_json glm::glm assimp::assimp)
 
 # Inclure les headers du projet et des dépendances
 target_include_directories(ZenithEngineLib PRIVATE
@@ -59,10 +60,11 @@ file(GLOB_RECURSE TEST_SOURCES
 add_executable(ZenithEngineTests ${TEST_SOURCES})
 
 # Lier les bibliothèques nécessaires pour les tests
-target_link_libraries(ZenithEngineTests PRIVATE 
+target_link_libraries(ZenithEngineTests PRIVATE
     ZenithEngineLib
-    GTest::gtest 
+    GTest::gtest
     GTest::gtest_main
+    assimp::assimp
 )
 
 # Inclure les headers pour les tests
