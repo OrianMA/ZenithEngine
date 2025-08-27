@@ -5,6 +5,7 @@
     "nlohmann-json",
     "glm",
     "stb",
-    "gtest"
+    "gtest",
+    "assimp"
   ]
 }
