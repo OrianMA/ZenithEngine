@@ -17,19 +17,10 @@ protected:
     }
 };
 
-TEST_F(ModelTest, ModelInitialization) {
-    // Test d'initialisation d'un modèle
-    // Note: Ce test vérifie la logique de base sans charger de fichier réel
-    
-    std::string modelPath = "test_model.gltf";
-    EXPECT_FALSE(modelPath.empty());
-    EXPECT_EQ(modelPath, "test_model.gltf");
-}
-
 TEST_F(ModelTest, ModelPathValidation) {
     // Test de validation des chemins de fichiers
     
-    std::string validPath = "assets/Models/test.gltf";
+    std::string validPath = "assets/Models/TestModelGLTF/test_model.gltf";
     std::string invalidPath = "";
     
     EXPECT_FALSE(validPath.empty());
