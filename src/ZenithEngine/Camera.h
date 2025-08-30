@@ -27,7 +27,7 @@ public:
 	int width;
 	int height;
 
-	// Adjust the speed of the camera and it's sensitivity when looking around
+    // Adjust the speed of the camera and its sensitivity when looking around
 	float speed = 0.1f;
 	float sensitivity = 100.0f;
 

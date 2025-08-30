@@ -37,4 +37,5 @@ jobs:
     - name: Run tests
       run: |
         cd build
-        ctest --output-on-failure --verbose
+        # Use the same configuration as the build (Release) so CTest can locate the test binaries
+        ctest -C Release --output-on-failure --verbose

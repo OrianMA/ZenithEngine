@@ -3,28 +3,28 @@
 #include <vector>
 #include <fstream>
 
-// Include des headers de ton projet
+// Include project headers
 #include "../src/ZenithEngine/Model.h"
 #include "../src/ZenithEngine/shaderClass.h"
 #include "../src/ZenithEngine/Camera.h"
 #include "../src/ZenithEngine/Texture.h"
 
-// Tests pour la classe Shader
+// Tests for the Shader class
 class ShaderTest : public ::testing::Test {
 protected:
     void SetUp() override {
-        // Créer des fichiers de shader temporaires pour les tests
+        // Create temporary shader files for tests
         createTestShaders();
     }
     
     void TearDown() override {
-        // Nettoyer les fichiers temporaires
+        // Clean up temporary files
         cleanupTestShaders();
     }
 
 private:
     void createTestShaders() {
-        // Créer un vertex shader simple
+        // Create a simple vertex shader
         std::ofstream vertFile("test_vertex.vert");
         vertFile << "#version 330 core\n";
         vertFile << "layout (location = 0) in vec3 aPos;\n";
@@ -33,7 +33,7 @@ private:
         vertFile << "}\n";
         vertFile.close();
 
-        // Créer un fragment shader simple
+        // Create a simple fragment shader
         std::ofstream fragFile("test_fragment.frag");
         fragFile << "#version 330 core\n";
         fragFile << "out vec4 FragColor;\n";
@@ -50,7 +50,7 @@ private:
 };
 
 TEST_F(ShaderTest, ShaderFileCreation) {
-    // Test que les fichiers de shader existent
+    // Verify that the shader files exist
     std::ifstream vertFile("test_vertex.vert");
     std::ifstream fragFile("test_fragment.frag");
     
@@ -62,8 +62,8 @@ TEST_F(ShaderTest, ShaderFileCreation) {
 }
 
 TEST_F(ShaderTest, ShaderCompilation) {
-    // Test de compilation de shader (sans OpenGL context)
-    // Note: Ce test vérifie juste que les fichiers sont valides
+    // Shader compilation test (without OpenGL context)
+    // Note: This only checks that the sources look valid
     std::string vertSource = "#version 330 core\nlayout (location = 0) in vec3 aPos;\nvoid main() { gl_Position = vec4(aPos, 1.0); }";
     std::string fragSource = "#version 330 core\nout vec4 FragColor;\nvoid main() { FragColor = vec4(1.0); }";
     
@@ -73,21 +73,21 @@ TEST_F(ShaderTest, ShaderCompilation) {
     EXPECT_TRUE(fragSource.find("main") != std::string::npos);
 }
 
-// Tests pour la classe Camera
+// Tests for the Camera class
 class CameraTest : public ::testing::Test {
 protected:
     void SetUp() override {
-        // Setup pour chaque test
+        // Per-test setup
     }
     
     void TearDown() override {
-        // Cleanup après chaque test
+        // Per-test cleanup
     }
 };
 
 TEST_F(CameraTest, CameraInitialization) {
-    // Test d'initialisation de la caméra avec des valeurs par défaut
-    // Note: On teste juste la logique, pas l'OpenGL
+    // Camera initialization with default-like values
+    // Note: We test math/values only, not OpenGL
     int width = 800;
     int height = 600;
     glm::vec3 position(0.0f, 0.0f, 2.0f);
@@ -100,7 +100,7 @@ TEST_F(CameraTest, CameraInitialization) {
 }
 
 TEST_F(CameraTest, CameraMatrix) {
-    // Test des matrices de la caméra
+    // Camera matrix tests
     glm::mat4 viewMatrix = glm::lookAt(
         glm::vec3(0.0f, 0.0f, 2.0f),  // Position
         glm::vec3(0.0f, 0.0f, 0.0f),  // Target
@@ -110,20 +110,20 @@ TEST_F(CameraTest, CameraMatrix) {
     glm::mat4 projectionMatrix = glm::perspective(
         glm::radians(45.0f),  // FOV
         800.0f / 600.0f,      // Aspect ratio
-        0.1f,                  // Near
-        100.0f                 // Far
+        0.1f,                 // Near
+        100.0f                // Far
     );
     
-    // Vérifier que les matrices ne sont pas nulles (test simple)
-    // Note: Les valeurs exactes dépendent de l'implémentation GLM
+    // Sanity-check some matrix values (simple test)
+    // Note: exact values depend on GLM implementation
     EXPECT_FLOAT_EQ(viewMatrix[0][0], 1.0f);
-    // La projection matrix a une valeur différente selon l'aspect ratio
-    EXPECT_GT(projectionMatrix[0][0], 0.0f); // Doit être positive
+    // Projection matrix element depends on aspect ratio
+    EXPECT_GT(projectionMatrix[0][0], 0.0f); // Should be positive
 }
 
-// Tests pour les utilitaires mathématiques
+// Tests for math utilities
 TEST(MathTest, VectorOperations) {
-    // Test des opérations sur les vecteurs glm
+    // Test glm vector operations
     glm::vec3 v1(1.0f, 2.0f, 3.0f);
     glm::vec3 v2(4.0f, 5.0f, 6.0f);
     
@@ -132,13 +132,13 @@ TEST(MathTest, VectorOperations) {
     EXPECT_FLOAT_EQ(result.y, 7.0f);
     EXPECT_FLOAT_EQ(result.z, 9.0f);
     
-    // Test de la soustraction
+    // Subtraction
     glm::vec3 diff = v2 - v1;
     EXPECT_FLOAT_EQ(diff.x, 3.0f);
     EXPECT_FLOAT_EQ(diff.y, 3.0f);
     EXPECT_FLOAT_EQ(diff.z, 3.0f);
     
-    // Test de la multiplication par un scalaire
+    // Scalar multiplication
     glm::vec3 scaled = v1 * 2.0f;
     EXPECT_FLOAT_EQ(scaled.x, 2.0f);
     EXPECT_FLOAT_EQ(scaled.y, 4.0f);
@@ -146,10 +146,10 @@ TEST(MathTest, VectorOperations) {
 }
 
 TEST(MathTest, MatrixOperations) {
-    // Test des opérations sur les matrices glm
+    // Test glm matrix operations
     glm::mat4 identity = glm::mat4(1.0f);
     
-    // Vérifier que c'est bien une matrice identité
+    // Verify identity matrix values
     for (int i = 0; i < 4; i++) {
         for (int j = 0; j < 4; j++) {
             if (i == j) {
@@ -160,21 +160,21 @@ TEST(MathTest, MatrixOperations) {
         }
     }
     
-    // Test de la translation
+    // Translation
     glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 2.0f, 3.0f));
     EXPECT_FLOAT_EQ(translation[3][0], 1.0f);
     EXPECT_FLOAT_EQ(translation[3][1], 2.0f);
     EXPECT_FLOAT_EQ(translation[3][2], 3.0f);
     
-    // Test de la rotation
+    // Rotation
     glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    // cos(90°) ≈ 0, mais avec une tolérance pour les erreurs de précision
+    // cos(90°) ~ 0, allow tolerance for floating-point precision
     EXPECT_NEAR(rotation[0][0], 0.0f, 1e-6f);
 }
 
-// Tests pour les utilitaires de fichiers
+// Tests for file utilities
 TEST(FileTest, FileExists) {
-    // Test de vérification d'existence de fichiers
+    // File existence check
     std::ofstream testFile("test_file.txt");
     testFile << "Test content";
     testFile.close();
@@ -183,20 +183,20 @@ TEST(FileTest, FileExists) {
     EXPECT_TRUE(checkFile.good());
     checkFile.close();
     
-    // Nettoyer
+    // Cleanup
     std::remove("test_file.txt");
 }
 
 TEST(FileTest, FileContent) {
-    // Test de lecture/écriture de fichiers
+    // File write/read test
     std::string testContent = "Hello, World!";
     
-    // Écrire
+    // Write
     std::ofstream writeFile("test_content.txt");
     writeFile << testContent;
     writeFile.close();
     
-    // Lire
+    // Read
     std::ifstream readFile("test_content.txt");
     std::string readContent;
     std::getline(readFile, readContent);
@@ -204,24 +204,25 @@ TEST(FileTest, FileContent) {
     
     EXPECT_EQ(readContent, testContent);
     
-    // Nettoyer
+    // Cleanup
     std::remove("test_content.txt");
 }
 
-// Tests pour les utilitaires de chaînes
+// Tests for string utilities
 TEST(StringTest, StringOperations) {
     std::string str1 = "Hello";
     std::string str2 = "World";
     
-    // Test de concaténation
+    // Concatenation
     std::string result = str1 + " " + str2;
     EXPECT_EQ(result, "Hello World");
     
-    // Test de longueur
+    // Length
     EXPECT_EQ(str1.length(), 5);
     EXPECT_EQ(str2.length(), 5);
     
-    // Test de recherche
+    // Search
     EXPECT_TRUE(result.find("Hello") != std::string::npos);
     EXPECT_TRUE(result.find("World") != std::string::npos);
 } 
+
