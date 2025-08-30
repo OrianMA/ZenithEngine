@@ -10,7 +10,7 @@ protected:
 };
 
 TEST_F(FBXModelTest, PathHandling) {
-    std::string path = "assets/Models/test_model.fbx";
+    std::string path = "assets/Models/TestModel/TestModel.fbx";
     EXPECT_TRUE(path.find(".fbx") != std::string::npos);
 }
 
