@@ -1,6 +1,5 @@
 #include <gtest/gtest.h>
-
-// Test simple pour vérifier que Google Test fonctionne
+// Simple tests to verify Google Test works
 TEST(SimpleTest, BasicAssertion) {
     EXPECT_EQ(1, 1);
     EXPECT_TRUE(true);
@@ -21,3 +20,4 @@ TEST(SimpleTest, StringOperations) {
     std::string result = str1 + " " + str2;
     EXPECT_EQ(result, "Hello World");
 } 
+
