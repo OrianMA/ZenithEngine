@@ -1,5 +1,6 @@
 #include"Texture.h"
 #include <stdexcept>
+#include <iostream>
 
 Texture::Texture(const char* image, const char* texType, GLuint slot)
 {
@@ -11,10 +12,10 @@ Texture::Texture(const char* image, const char* texType, GLuint slot)
 	// Flips the image so it appears right side up
 	stbi_set_flip_vertically_on_load(true);
 	// Reads the image from a file and stores it in bytes
-	unsigned char* bytes = stbi_load(image, &widthImg, &heightImg, &numColCh, 0);
+    unsigned char* bytes = stbi_load(image, &widthImg, &heightImg, &numColCh, 0);
 
 	// Generates an OpenGL texture object
-	glGenTextures(1, &ID);
+    glGenTextures(1, &ID);
 	// Assigns the texture to a Texture Unit
 	glActiveTexture(GL_TEXTURE0 + slot);
 	unit = slot;
@@ -36,8 +37,23 @@ Texture::Texture(const char* image, const char* texType, GLuint slot)
 	// float flatColor[] = {1.0f, 1.0f, 1.0f, 1.0f};
 	// glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, flatColor);
 
-	// Check what type of color channels the texture has and load it accordingly
-        if (numColCh == 4)
+    // If loading failed, create a 1x1 fallback (magenta) and warn
+        if (!bytes) {
+                std::cerr << "[Texture] Failed to load: " << image << std::endl;
+                unsigned char fallback[4] = { 255, 0, 255, 255 };
+                glTexImage2D(
+                        GL_TEXTURE_2D,
+                        0,
+                        GL_RGBA,
+                        1,
+                        1,
+                        0,
+                        GL_RGBA,
+                        GL_UNSIGNED_BYTE,
+                        fallback);
+        }
+        // Check what type of color channels the texture has and load it accordingly
+        else if (numColCh == 4)
                 glTexImage2D
                 (
                         GL_TEXTURE_2D,
@@ -79,11 +95,11 @@ Texture::Texture(const char* image, const char* texType, GLuint slot)
 	else
 		throw std::invalid_argument("Automatic Texture type recognition failed");
 
-	// Generates MipMaps
-	glGenerateMipmap(GL_TEXTURE_2D);
+    // Generates MipMaps
+    glGenerateMipmap(GL_TEXTURE_2D);
 
-	// Deletes the image data as it is already in the OpenGL Texture object
-	stbi_image_free(bytes);
+    // Deletes the image data as it is already in the OpenGL Texture object
+    if (bytes) stbi_image_free(bytes);
 
 	// Unbinds the OpenGL Texture object so that it can't accidentally be modified
 	glBindTexture(GL_TEXTURE_2D, 0);

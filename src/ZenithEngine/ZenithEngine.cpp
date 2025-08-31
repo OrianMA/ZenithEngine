@@ -3,9 +3,6 @@
 #include <FBXModel.h>
 
 
-const unsigned int width = 800;
-const unsigned int height = 800;
-
 const std::string ASSETS_PATH = "../assets/";
 
 int main()
@@ -21,8 +18,12 @@ int main()
 	// So that means we only have the modern functions
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	// Create a GLFWwindow object of 800 by 800 pixels, naming it "YoutubeOpenGL"
-	GLFWwindow* window = glfwCreateWindow(width, height, "Zenith Engine", NULL, NULL);
+    // Create a fullscreen window on the primary monitor
+    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+    const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+    int scrWidth = mode ? mode->width : 800;
+    int scrHeight = mode ? mode->height : 800;
+    GLFWwindow* window = glfwCreateWindow(scrWidth, scrHeight, "Zenith Engine", monitor, NULL);
 	// Error check if the window fails to create
 	if (window == NULL)
 	{
@@ -35,9 +36,8 @@ int main()
 
 	//Load GLAD so it configures OpenGL
 	gladLoadGL();
-	// Specify the viewport of OpenGL in the Window
-	// In this case the viewport goes from x = 0, y = 0, to x = 800, y = 800
-	glViewport(0, 0, width, height);
+    // Specify the viewport of OpenGL in the Window
+    glViewport(0, 0, scrWidth, scrHeight);
 
 
 
@@ -65,17 +65,17 @@ int main()
 
 	// Enables Cull Facing
 	glEnable(GL_CULL_FACE);
-	// Keeps front faces
-	glCullFace(GL_FRONT);
+	// Cull back faces (standard)
+	glCullFace(GL_BACK);
 	// Uses counter clock-wise standard
 	glFrontFace(GL_CCW);
 
-	// Creates camera object
-	Camera camera(width, height, glm::vec3(0.0f, 0.0f, 2.0f));
+    // Creates camera object
+    Camera camera(scrWidth, scrHeight, glm::vec3(0.0f, 0.0f, 2.0f));
 
 
 	// Load in models
-	Model model((ASSETS_PATH + "Models/statue/scene.gltf").c_str());
+	//Model model((ASSETS_PATH + "Models/statue/scene.gltf").c_str());
 
 	FBXModel modelfbx((ASSETS_PATH + "Models/violin/violin.fbx").c_str());
 
@@ -95,6 +95,10 @@ int main()
 	// Main while loop
 	while (!glfwWindowShouldClose(window))
 	{
+		// Close on ESC
+		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+			glfwSetWindowShouldClose(window, true);
+		}
 		// Updates counter and times
 		crntTime = glfwGetTime();
 		timeDiff = crntTime - prevTime;
@@ -128,7 +132,7 @@ int main()
 
 
 		// Draw the normal model
-		model.Draw(shaderProgram, camera);
+		//model.Draw(shaderProgram, camera);
 		modelfbx.Draw(shaderProgram, camera);
 
 

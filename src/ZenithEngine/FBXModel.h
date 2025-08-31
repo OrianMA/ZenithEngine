@@ -28,7 +28,8 @@ private:
 
     void processNode(aiNode* node, const aiScene* scene, glm::mat4 parentTransform);
     Mesh processMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 transform);
-    std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, const char* typeName);
+    std::vector<Texture> loadMaterialTextures(const aiScene* scene, aiMaterial* mat, aiTextureType type, const char* typeName);
+    unsigned int chooseUVChannel(aiMaterial* mat) const;
 };
 
 #endif

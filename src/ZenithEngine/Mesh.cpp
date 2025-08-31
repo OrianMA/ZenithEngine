@@ -1,4 +1,5 @@
 #include "Mesh.h"
+#include <iostream>
 
 Mesh::Mesh(std::vector <Vertex>& vertices, std::vector <GLuint>& indices, std::vector <Texture>& textures)
 {
@@ -25,12 +26,12 @@ Mesh::Mesh(std::vector <Vertex>& vertices, std::vector <GLuint>& indices, std::v
 
 void Mesh::Draw
 (
-	Shader& shader,
-	Camera& camera,
-	glm::mat4 matrix,
-	glm::vec3 translation,
-	glm::quat rotation,
-	glm::vec3 scale
+    Shader& shader,
+    Camera& camera,
+    glm::mat4 matrix,
+    glm::vec3 translation,
+    glm::quat rotation,
+    glm::vec3 scale
 )
 {
 	// Bind shader to be able to access uniforms
@@ -38,24 +39,47 @@ void Mesh::Draw
 	VAO.Bind();
 
 	// Keep track of how many of each type of textures we have
-	unsigned int numDiffuse = 0;
-	unsigned int numSpecular = 0;
+    unsigned int numDiffuse = 0;
+    unsigned int numSpecular = 0;
 
-	for (unsigned int i = 0; i < textures.size(); i++)
-	{
-		std::string num;
-		std::string type = textures[i].type;
-		if (type == "diffuse")
-		{
-			num = std::to_string(numDiffuse++);
-		}
-		else if (type == "specular")
-		{
-			num = std::to_string(numSpecular++);
-		}
-		textures[i].texUnit(shader, (type + num).c_str(), i);
-		textures[i].Bind();
-	}
+    for (unsigned int i = 0; i < textures.size(); i++)
+    {
+        std::string num;
+        std::string type = textures[i].type;
+        if (type == "diffuse")
+        {
+            num = std::to_string(numDiffuse++);
+        }
+        else if (type == "specular")
+        {
+            num = std::to_string(numSpecular++);
+        }
+        textures[i].texUnit(shader, (type + num).c_str(), i);
+        textures[i].Bind();
+    }
+
+    // If no diffuse was provided, bind a 1x1 magenta as fallback to diffuse0
+    if (numDiffuse == 0)
+    {
+        static GLuint s_whiteTex = 0;
+        if (s_whiteTex == 0)
+        {
+            glGenTextures(1, &s_whiteTex);
+            glBindTexture(GL_TEXTURE_2D, s_whiteTex);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+            // Magenta fallback (255,0,255,255)
+            unsigned char magenta[4] = {255, 0, 255, 255};
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, magenta);
+        }
+        // Force sampler to unit 0 and bind fallback
+        GLuint texUni = glGetUniformLocation(shader.ID, "diffuse0");
+        glUniform1i(texUni, 0);
+        glActiveTexture(GL_TEXTURE0 + 0);
+        glBindTexture(GL_TEXTURE_2D, s_whiteTex);
+    }
 	// Take care of the camera Matrix
 	glUniform3f(glGetUniformLocation(shader.ID, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
 	camera.Matrix(shader, "camMatrix");
@@ -74,8 +98,8 @@ void Mesh::Draw
 	glUniformMatrix4fv(glGetUniformLocation(shader.ID, "translation"), 1, GL_FALSE, glm::value_ptr(trans));
 	glUniformMatrix4fv(glGetUniformLocation(shader.ID, "rotation"), 1, GL_FALSE, glm::value_ptr(rot));
 	glUniformMatrix4fv(glGetUniformLocation(shader.ID, "scale"), 1, GL_FALSE, glm::value_ptr(sca));
-	glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, glm::value_ptr(matrix));
+    glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, glm::value_ptr(matrix));
 
-	// Draw the actual mesh
-	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+    // Draw the actual mesh
+    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 }
