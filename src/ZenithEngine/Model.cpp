@@ -42,7 +42,7 @@ void Model::loadMesh(unsigned int indMesh)
 	// Combine all the vertex components and also get the indices and textures
 	std::vector<Vertex> vertices = assembleVertices(positions, normals, texUVs);
 	std::vector<GLuint> indices = getIndices(JSON["accessors"][indAccInd]);
-	std::vector<Texture> textures = getTextures();
+    std::vector<Texture> textures = getTextures(indMesh);
 
 	// Combine the vertices, indices, and textures into a mesh
 	meshes.push_back(Mesh(vertices, indices, textures));
@@ -228,54 +228,99 @@ std::vector<GLuint> Model::getIndices(json accessor)
 	return indices;
 }
 
-std::vector<Texture> Model::getTextures()
+std::vector<Texture> Model::getTextures(unsigned int indMesh)
 {
-	std::vector<Texture> textures;
+    std::vector<Texture> textures;
 
-	std::string fileStr = std::string(file);
-	std::string fileDirectory = fileStr.substr(0, fileStr.find_last_of('/') + 1);
+    std::string fileStr = std::string(file);
+    std::string fileDirectory = fileStr.substr(0, fileStr.find_last_of('/') + 1);
 
-	// Go over all images
-	for (unsigned int i = 0; i < JSON["images"].size(); i++)
-	{
-		// uri of current texture
-		std::string texPath = JSON["images"][i]["uri"];
+    // Determine the material used by this mesh primitive
+    if (JSON["meshes"][indMesh]["primitives"].size() == 0)
+        return textures;
 
-		// Check if the texture has already been loaded
-		bool skip = false;
-		for (unsigned int j = 0; j < loadedTexName.size(); j++)
-		{
-			if (loadedTexName[j] == texPath)
-			{
-				textures.push_back(loadedTex[j]);
-				skip = true;
-				break;
-			}
-		}
+    json primitive = JSON["meshes"][indMesh]["primitives"][0];
+    if (primitive.find("material") == primitive.end())
+        return textures;
 
-		// If the texture has been loaded, skip this
-		if (!skip)
-		{
-			// Load diffuse texture
-			if (texPath.find("baseColor") != std::string::npos)
-			{
-				Texture diffuse = Texture((fileDirectory + texPath).c_str(), "diffuse", loadedTex.size());
-				textures.push_back(diffuse);
-				loadedTex.push_back(diffuse);
-				loadedTexName.push_back(texPath);
-			}
-			// Load specular texture
-			else if (texPath.find("metallicRoughness") != std::string::npos)
-			{
-				Texture specular = Texture((fileDirectory + texPath).c_str(), "specular", loadedTex.size());
-				textures.push_back(specular);
-				loadedTex.push_back(specular);
-				loadedTexName.push_back(texPath);
-			}
-		}
-	}
+    unsigned int matIndex = primitive["material"];
+    if (matIndex >= JSON["materials"].size())
+        return textures;
 
-	return textures;
+    json material = JSON["materials"][matIndex];
+    // Handle PBR baseColorTexture
+    if (material.find("pbrMetallicRoughness") != material.end())
+    {
+        json pbr = material["pbrMetallicRoughness"];
+        if (pbr.find("baseColorTexture") != pbr.end() && pbr["baseColorTexture"].find("index") != pbr["baseColorTexture"].end())
+        {
+            unsigned int texIndex = pbr["baseColorTexture"]["index"];
+            if (texIndex < JSON["textures"].size())
+            {
+                unsigned int imgIndex = JSON["textures"][texIndex]["source"];
+                if (imgIndex < JSON["images"].size())
+                {
+                    std::string texPath = JSON["images"][imgIndex].value("uri", "");
+                    if (!texPath.empty())
+                    {
+                        // Deduplicate
+                        bool found = false;
+                        for (unsigned int j = 0; j < loadedTexName.size(); j++)
+                        {
+                            if (loadedTexName[j] == texPath)
+                            {
+                                textures.push_back(loadedTex[j]);
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found)
+                        {
+                            Texture diffuse = Texture((fileDirectory + texPath).c_str(), "diffuse", loadedTex.size());
+                            textures.push_back(diffuse);
+                            loadedTex.push_back(diffuse);
+                            loadedTexName.push_back(texPath);
+                        }
+                    }
+                }
+            }
+        }
+        // MetallicRoughness as specular intensity proxy (optional)
+        if (pbr.find("metallicRoughnessTexture") != pbr.end() && pbr["metallicRoughnessTexture"].find("index") != pbr["metallicRoughnessTexture"].end())
+        {
+            unsigned int texIndex = pbr["metallicRoughnessTexture"]["index"];
+            if (texIndex < JSON["textures"].size())
+            {
+                unsigned int imgIndex = JSON["textures"][texIndex]["source"];
+                if (imgIndex < JSON["images"].size())
+                {
+                    std::string texPath = JSON["images"][imgIndex].value("uri", "");
+                    if (!texPath.empty())
+                    {
+                        bool found = false;
+                        for (unsigned int j = 0; j < loadedTexName.size(); j++)
+                        {
+                            if (loadedTexName[j] == texPath)
+                            {
+                                textures.push_back(loadedTex[j]);
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found)
+                        {
+                            Texture specular = Texture((fileDirectory + texPath).c_str(), "specular", loadedTex.size());
+                            textures.push_back(specular);
+                            loadedTex.push_back(specular);
+                            loadedTexName.push_back(texPath);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return textures;
 }
 
 std::vector<Vertex> Model::assembleVertices
