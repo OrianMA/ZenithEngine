@@ -6,6 +6,7 @@
     "glm",
     "stb",
     "gtest",
-    "assimp"
+    "assimp",
+    { "name": "imgui", "features": ["glfw-binding", "opengl3-binding"] }
   ]
 }

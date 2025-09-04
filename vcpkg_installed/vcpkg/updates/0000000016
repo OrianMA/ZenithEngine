@@ -1,8 +1,8 @@
-Package: gtest
-Version: 1.15.2
+Package: jhasse-poly2tri
+Version: 2023-12-27
 Depends: vcpkg-cmake, vcpkg-cmake-config
 Architecture: x64-windows
 Multi-Arch: same
-Abi: aacfa87312b0d5099ab75fb001b377fb4bfdeb05ae6884372927b184ebac91d1
-Description: Google Testing and Mocking Framework
+Abi: b6d697b2a501b20b7e2333b1751d1c2ac4cb371de97a2525d34231d9f26c7757
+Description: Sweep-line algorithm for constrained Delaunay triangulation
 Status: install ok half-installed

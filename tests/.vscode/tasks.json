@@ -1,0 +1,125 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build Tests",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "${workspaceFolder}/../build",
+                "--config",
+                "Release"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Run All Tests",
+            "type": "shell",
+            "command": "${workspaceFolder}/../build/Release/ZenithEngineTests.exe",
+            "windows": {
+                "command": "${workspaceFolder}/../build/Release/ZenithEngineTests.exe"
+            },
+            "linux": {
+                "command": "${workspaceFolder}/../build/ZenithEngineTests"
+            },
+            "osx": {
+                "command": "${workspaceFolder}/../build/ZenithEngineTests"
+            },
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "dependsOn": "Build Tests"
+        },
+        {
+            "label": "Run Tests with Filter",
+            "type": "shell",
+            "command": "${workspaceFolder}/../build/Release/ZenithEngineTests.exe",
+            "args": [
+                "--gtest_filter=${input:testFilter}"
+            ],
+            "windows": {
+                "command": "${workspaceFolder}/../build/Release/ZenithEngineTests.exe"
+            },
+            "linux": {
+                "command": "${workspaceFolder}/../build/ZenithEngineTests"
+            },
+            "osx": {
+                "command": "${workspaceFolder}/../build/ZenithEngineTests"
+            },
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "dependsOn": "Build Tests"
+        },
+        {
+            "label": "Run Tests Verbose",
+            "type": "shell",
+            "command": "${workspaceFolder}/../build/Release/ZenithEngineTests.exe",
+            "args": [
+                "--gtest_verbose",
+                "--gtest_color=yes"
+            ],
+            "windows": {
+                "command": "${workspaceFolder}/../build/Release/ZenithEngineTests.exe"
+            },
+            "linux": {
+                "command": "${workspaceFolder}/../build/ZenithEngineTests"
+            },
+            "osx": {
+                "command": "${workspaceFolder}/../build/ZenithEngineTests"
+            },
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "dependsOn": "Build Tests"
+        },
+        {
+            "label": "Clean and Build",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "${workspaceFolder}/../build",
+                "--config",
+                "Release",
+                "--clean-first"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": "$msCompile"
+        }
+    ],
+    "inputs": [
+        {
+            "id": "testFilter",
+            "type": "promptString",
+            "description": "Enter test filter pattern (e.g., SimpleTest.*)",
+            "default": "SimpleTest.*"
+        }
+    ]
+}
