@@ -1,4 +1,4 @@
-#include "ZenithApp.h"
+﻿#include "ZenithApp.h"
 
 #include <iostream>
 #include <filesystem>
@@ -106,6 +106,24 @@ int ZenithApp::run()
                       (ASSETS_PATH + std::string(shaderPresets[idx].frag)).c_str());
     };
     Shader shaderProgram = makeShader(currentShaderIdx);
+    // Shader tweakable params (UI)
+    float uAmbient = 0.20f;
+    float uSpecularStrength = 0.50f;
+    float uShininess = 16.0f;
+    glm::vec3 uTint = glm::vec3(1.0f, 1.0f, 1.0f);
+    float uGrayAmount = 0.0f; // 0..1
+    float uToonLevels = 0.0f; // 0 disables
+
+    auto applyPresetDefaults = [&](){
+        // Defaults per preset name
+        const char* name = shaderPresets[currentShaderIdx].name;
+        uAmbient = 0.20f; uSpecularStrength = 0.50f; uShininess = 16.0f; uGrayAmount = 0.0f; uToonLevels = 0.0f; uTint = glm::vec3(1,1,1);
+        if (std::string(name) == "Warm")      uTint = glm::vec3(1.10f, 0.95f, 0.85f);
+        else if (std::string(name) == "Cool") uTint = glm::vec3(0.85f, 0.95f, 1.10f);
+        else if (std::string(name) == "Toon") uToonLevels = 4.0f;
+        else if (std::string(name) == "Grayscale") uGrayAmount = 1.0f;
+    };
+    applyPresetDefaults();
 
     // Light settings & visualization
     enum class LightType { Directional = 0, Point = 1, Spot = 2 };
@@ -358,6 +376,12 @@ int ZenithApp::run()
         glUniform1f(glGetUniformLocation(shaderProgram.ID, "uAttenA"), attenA);
         glUniform1f(glGetUniformLocation(shaderProgram.ID, "uAttenB"), attenB);
         glUniform1f(glGetUniformLocation(shaderProgram.ID, "uAttenC"), attenC);
+        glUniform1f(glGetUniformLocation(shaderProgram.ID, "uAmbient"), uAmbient);
+        glUniform1f(glGetUniformLocation(shaderProgram.ID, "uSpecularStrength"), uSpecularStrength);
+        glUniform1f(glGetUniformLocation(shaderProgram.ID, "uShininess"), uShininess);
+        glUniform3f(glGetUniformLocation(shaderProgram.ID, "uTint"), uTint.x, uTint.y, uTint.z);
+        glUniform1f(glGetUniformLocation(shaderProgram.ID, "uGrayAmount"), uGrayAmount);
+        glUniform1f(glGetUniformLocation(shaderProgram.ID, "uToonLevels"), uToonLevels);
 
         drawCurrentModel(currentModel, shaderProgram, camera, modelPos, modelRot, modelScale);
 
@@ -429,12 +453,20 @@ int ZenithApp::run()
                     // Replace current shader with new selection
                     shaderProgram.Delete();
                     currentShaderIdx = i;
-                    shaderProgram = makeShader(currentShaderIdx);
+                    shaderProgram = makeShader(currentShaderIdx); applyPresetDefaults();
                 }
             }
             ImGui::Separator();
             ImVec4 c = shaderPresets[currentShaderIdx].clear;
             ImGui::Text("Clear: R=%.2f G=%.2f B=%.2f", c.x, c.y, c.z);
+            if (ImGui::Button("Reset preset")) { applyPresetDefaults(); }
+            ImGui::Separator();
+            ImGui::SliderFloat("Ambient", &uAmbient, 0.0f, 1.0f);
+            ImGui::SliderFloat("Specular", &uSpecularStrength, 0.0f, 2.0f);
+            ImGui::SliderFloat("Shininess", &uShininess, 1.0f, 128.0f);
+            ImGui::ColorEdit3("Tint", (float*)&uTint);
+            ImGui::SliderFloat("Grayscale", &uGrayAmount, 0.0f, 1.0f);
+            ImGui::SliderFloat("Toon Levels", &uToonLevels, 0.0f, 8.0f);
         }
         ImGui::End();
 
@@ -508,6 +540,8 @@ int ZenithApp::run()
     glfwTerminate();
     return 0;
 }
+
+
 
 
 

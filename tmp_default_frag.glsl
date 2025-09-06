@@ -1,4 +1,4 @@
-﻿#version 330 core
+#version 330 core
 
 // Outputs colors in RGBA
 out vec4 FragColor;
@@ -28,14 +28,6 @@ uniform float uSpotOuter; // [0..1], <= inner
 uniform float uAttenA;    // quadratic term
 uniform float uAttenB;    // linear term
 uniform float uAttenC;    // constant term
-
-// Tweakable material/shading params
-uniform float uAmbient;           // ambient factor (0..1)
-uniform float uSpecularStrength;  // specular intensity
-uniform float uShininess;         // specular exponent
-uniform vec3  uTint;              // RGB multiplier
-uniform float uGrayAmount;        // 0..1 grayscale mix
-uniform float uToonLevels;        // >=1 enables toon quantization
 
 
 vec4 pointLight()
@@ -112,5 +104,4 @@ void main()
     }
     FragColor = col;
 }
-
 

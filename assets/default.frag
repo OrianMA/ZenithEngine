@@ -1,4 +1,4 @@
-#version 330 core
+﻿#version 330 core
 
 // Outputs colors in RGBA
 out vec4 FragColor;
@@ -29,6 +29,14 @@ uniform float uAttenA;    // quadratic term
 uniform float uAttenB;    // linear term
 uniform float uAttenC;    // constant term
 
+// Tweakable material/shading params
+uniform float uAmbient;           // ambient factor (0..1)
+uniform float uSpecularStrength;  // specular intensity
+uniform float uShininess;         // specular exponent
+uniform vec3  uTint;              // RGB multiplier
+uniform float uGrayAmount;        // 0..1 grayscale mix
+uniform float uToonLevels;        // >=1 enables toon quantization
+
 
 vec4 pointLight()
 {	
@@ -40,7 +48,7 @@ vec4 pointLight()
     float inten = 1.0f / (uAttenA * dist * dist + uAttenB * dist + max(uAttenC, 1e-5));
 
 	// ambient lighting
-	float ambient = 0.20f;
+	float ambient = uAmbient;
 
 	// diffuse lighting
 	vec3 normal = normalize(Normal);
@@ -48,10 +56,10 @@ vec4 pointLight()
 	float diffuse = max(dot(normal, lightDirection), 0.0f);
 
 	// specular lighting
-	float specularLight = 0.50f;
+	float specularLight = uSpecularStrength;
 	vec3 viewDirection = normalize(camPos - crntPos);
 	vec3 reflectionDirection = reflect(-lightDirection, normal);
-	float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), 16);
+	float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), max(uShininess, 1.0));
 	float specular = specAmount * specularLight;
 
 	return (texture(diffuse0, texCoord) * (diffuse * inten + ambient) + texture(specular0, texCoord).r * specular * inten) * lightColor;
@@ -59,28 +67,28 @@ vec4 pointLight()
 
 vec4 direcLight()
 {
-    float ambient = 0.20f;
+    float ambient = uAmbient;
     vec3 normal = normalize(Normal);
     vec3 lightDirection = normalize(uLightDir);
     float diffuse = max(dot(normal, lightDirection), 0.0f);
-    float specularLight = 0.50f;
+    float specularLight = uSpecularStrength;
     vec3 viewDirection = normalize(camPos - crntPos);
     vec3 reflectionDirection = reflect(-lightDirection, normal);
-    float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), 16);
+    float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), max(uShininess, 1.0));
     float specular = specAmount * specularLight;
     return (texture(diffuse0, texCoord) * (diffuse + ambient) + texture(specular0, texCoord).r * specular) * lightColor;
 }
 
 vec4 spotLight()
 {
-    float ambient = 0.20f;
+    float ambient = uAmbient;
     vec3 normal = normalize(Normal);
     vec3 lightDirection = normalize(lightPos - crntPos);
     float diffuse = max(dot(normal, lightDirection), 0.0f);
-    float specularLight = 0.50f;
+    float specularLight = uSpecularStrength;
     vec3 viewDirection = normalize(camPos - crntPos);
     vec3 reflectionDirection = reflect(-lightDirection, normal);
-    float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), 16);
+    float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), max(uShininess, 1.0));
     float specular = specAmount * specularLight;
     // angle to center of cone
     float angle = dot(normalize(uLightDir), -lightDirection);
@@ -91,8 +99,17 @@ vec4 spotLight()
 
 void main()
 {
-    // outputs final color based on selected light type
-    if (uLightType == 0)      FragColor = direcLight();
-    else if (uLightType == 1) FragColor = pointLight();
-    else                      FragColor = spotLight();
+    vec4 col;
+    if (uLightType == 0)      col = direcLight();
+    else if (uLightType == 1) col = pointLight();
+    else                      col = spotLight();
+    col.rgb *= uTint;
+    float g = dot(col.rgb, vec3(0.299, 0.587, 0.114));
+    col.rgb = mix(col.rgb, vec3(g), clamp(uGrayAmount, 0.0, 1.0));
+    if (uToonLevels >= 1.5) {
+        float L = max(1.0, uToonLevels);
+        col.rgb = floor(col.rgb * L) / L;
+    }
+    FragColor = col;
 }
+
