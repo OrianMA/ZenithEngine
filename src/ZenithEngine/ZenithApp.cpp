@@ -71,16 +71,31 @@ int ZenithApp::run()
     if (fbWidth <= 0 || fbHeight <= 0) { fbWidth = scrWidth; fbHeight = scrHeight; }
     glViewport(0, 0, fbWidth, fbHeight);
 
-    // Shader
-    Shader shaderProgram((ASSETS_PATH + std::string("default.vert")).c_str(),
-                         (ASSETS_PATH + std::string("default.frag")).c_str());
+    // Shader selection (multiple variants share the same vertex shader)
+    struct ShaderPreset { const char* name; const char* frag; ImVec4 clear; };
+    std::vector<ShaderPreset> shaderPresets = {
+        {"Default",      "default.frag",       ImVec4(0.07f, 0.13f, 0.17f, 1.0f)},
+        {"Warm",         "default_warm.frag",  ImVec4(0.15f, 0.06f, 0.04f, 1.0f)},
+        {"Cool",         "default_cool.frag",  ImVec4(0.02f, 0.08f, 0.14f, 1.0f)},
+        {"Toon",         "default_toon.frag",  ImVec4(0.10f, 0.10f, 0.12f, 1.0f)},
+        {"Grayscale",    "default_gray.frag",  ImVec4(0.12f, 0.12f, 0.12f, 1.0f)},
+    };
+    int currentShaderIdx = 0;
+    auto makeShader = [&](int idx) {
+        if (idx < 0 || idx >= (int)shaderPresets.size()) idx = 0;
+        return Shader((ASSETS_PATH + std::string("default.vert")).c_str(),
+                      (ASSETS_PATH + std::string(shaderPresets[idx].frag)).c_str());
+    };
+    Shader shaderProgram = makeShader(currentShaderIdx);
 
-    // Light uniforms
+    // Light settings & visualization
+    enum class LightType { Directional = 0, Point = 1, Spot = 2 };
+    LightType lightType = LightType::Directional;
     glm::vec4 lightColor = glm::vec4(1.0f);
     glm::vec3 lightPos = glm::vec3(0.5f, 0.5f, 0.5f);
-    shaderProgram.Activate();
-    glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
-    glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
+    glm::vec3 lightDir = glm::vec3(0.0f, 0.0f, -1.0f); // default to "north"
+    float spotInner = 0.95f;
+    float spotOuter = 0.90f;
 
     // GL state
     glEnable(GL_DEPTH_TEST);
@@ -90,6 +105,36 @@ int ZenithApp::run()
 
     // Camera
     Camera camera(scrWidth, scrHeight, glm::vec3(0.0f, 0.0f, 2.0f));
+
+    // Simple cube to visualize point light
+    GLuint lightVAO = 0, lightVBO = 0, lightEBO = 0;
+    Shader lightShader((ASSETS_PATH + std::string("light.vert")).c_str(),
+                       (ASSETS_PATH + std::string("light.frag")).c_str());
+    {
+        float vertices[] = {
+            -0.5f,-0.5f,-0.5f,  0.5f,-0.5f,-0.5f,  0.5f, 0.5f,-0.5f, -0.5f, 0.5f,-0.5f,
+            -0.5f,-0.5f, 0.5f,  0.5f,-0.5f, 0.5f,  0.5f, 0.5f, 0.5f, -0.5f, 0.5f, 0.5f,
+        };
+        unsigned int indices[] = {
+            0,1,2, 2,3,0, // back
+            4,5,6, 6,7,4, // front
+            0,4,7, 7,3,0, // left
+            1,5,6, 6,2,1, // right
+            3,2,6, 6,7,3, // top
+            0,1,5, 5,4,0  // bottom
+        };
+        glGenVertexArrays(1, &lightVAO);
+        glGenBuffers(1, &lightVBO);
+        glGenBuffers(1, &lightEBO);
+        glBindVertexArray(lightVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, lightVBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, lightEBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
+        glBindVertexArray(0);
+    }
 
     // Presets list
     std::vector<Preset> presets = {
@@ -199,7 +244,9 @@ int ZenithApp::run()
             }
         }
 
-        glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
+        // Apply background color based on selected shader preset
+        ImVec4 cc = shaderPresets[currentShaderIdx].clear;
+        glClearColor(cc.x, cc.y, cc.z, cc.w);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // Start ImGui frame first to know if UI wants mouse
@@ -260,7 +307,30 @@ int ZenithApp::run()
         }
         camera.updateMatrix(45.0f, 0.1f, 100.0f);
 
+        // Update per-frame light uniforms
+        shaderProgram.Activate();
+        glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+        glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
+        glUniform1i(glGetUniformLocation(shaderProgram.ID, "uLightType"), (int)lightType);
+        glUniform3f(glGetUniformLocation(shaderProgram.ID, "uLightDir"), lightDir.x, lightDir.y, lightDir.z);
+        glUniform1f(glGetUniformLocation(shaderProgram.ID, "uSpotInner"), spotInner);
+        glUniform1f(glGetUniformLocation(shaderProgram.ID, "uSpotOuter"), spotOuter);
+
         drawCurrentModel(currentModel, shaderProgram, camera);
+
+        // Draw a tiny cube at point light position
+        if (lightType == LightType::Point) {
+            lightShader.Activate();
+            glUniform4f(glGetUniformLocation(lightShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+            camera.Matrix(lightShader, "camMatrix");
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, lightPos);
+            model = glm::scale(model, glm::vec3(0.03f));
+            glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
+            glBindVertexArray(lightVAO);
+            glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+            glBindVertexArray(0);
+        }
 
         ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_Once);
         ImGui::SetNextWindowSize(ImVec2(260, 300), ImGuiCond_Once);
@@ -281,12 +351,74 @@ int ZenithApp::run()
         }
         ImGui::End();
 
+        // Shaders window
+        ImGui::SetNextWindowPos(ImVec2(280, 10), ImGuiCond_Once);
+        ImGui::SetNextWindowSize(ImVec2(240, 220), ImGuiCond_Once);
+        if (ImGui::Begin("Shaders")) {
+            for (int i = 0; i < (int)shaderPresets.size(); ++i) {
+                bool sel = (i == currentShaderIdx);
+                if (ImGui::Selectable(shaderPresets[i].name, sel)) {
+                    // Replace current shader with new selection
+                    shaderProgram.Delete();
+                    currentShaderIdx = i;
+                    shaderProgram = makeShader(currentShaderIdx);
+                }
+            }
+            ImGui::Separator();
+            ImVec4 c = shaderPresets[currentShaderIdx].clear;
+            ImGui::Text("Clear: R=%.2f G=%.2f B=%.2f", c.x, c.y, c.z);
+        }
+        ImGui::End();
+
+        // Lights window
+        ImGui::SetNextWindowPos(ImVec2(530, 10), ImGuiCond_Once);
+        ImGui::SetNextWindowSize(ImVec2(320, 260), ImGuiCond_Once);
+        if (ImGui::Begin("Lights")) {
+            // Light type selection, replaces the current type when changed
+            int lt = (int)lightType;
+            if (ImGui::RadioButton("Directional", lt == 0)) { lightType = LightType::Directional; lt = 0; }
+            ImGui::SameLine();
+            if (ImGui::RadioButton("Point", lt == 1)) { lightType = LightType::Point; lt = 1; }
+            ImGui::SameLine();
+            if (ImGui::RadioButton("Spot", lt == 2)) { lightType = LightType::Spot; lt = 2; }
+
+            ImGui::Separator();
+            // Color picker for current light
+            ImGui::ColorEdit3("Color", (float*)&lightColor);
+
+            if (lightType == LightType::Directional) {
+                ImGui::Text("Direction presets:");
+                if (ImGui::Button("North"))  lightDir = glm::vec3(0, 0, -1);
+                ImGui::SameLine();
+                if (ImGui::Button("South"))   lightDir = glm::vec3(0, 0,  1);
+                ImGui::SameLine();
+                if (ImGui::Button("East"))   lightDir = glm::vec3(1, 0,  0);
+                ImGui::SameLine();
+                if (ImGui::Button("West")) lightDir = glm::vec3(-1, 0, 0);
+            }
+
+            if (lightType == LightType::Point) {
+                ImGui::Text("Point position:");
+                ImGui::DragFloat3("Pos", (float*)&lightPos, 0.01f);
+            }
+
+            if (lightType == LightType::Spot) {
+                ImGui::Text("Spot origin & direction:");
+                ImGui::DragFloat3("Pos", (float*)&lightPos, 0.01f);
+                ImGui::DragFloat3("Dir", (float*)&lightDir, 0.01f, -1.0f, 1.0f);
+                ImGui::SliderFloat("Inner", &spotInner, 0.0f, 1.0f);
+                ImGui::SliderFloat("Outer", &spotOuter, 0.0f, spotInner);
+            }
+        }
+        ImGui::End();
+
         imgui.endFrame();
 
         glfwSwapBuffers(window);
     }
 
     shaderProgram.Delete();
+    lightShader.Delete();
     glfwDestroyWindow(window);
     glfwTerminate();
     return 0;

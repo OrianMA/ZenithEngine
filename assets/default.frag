@@ -17,12 +17,14 @@ in vec2 texCoord;
 // Gets the Texture Units from the main function
 uniform sampler2D diffuse0;
 uniform sampler2D specular0;
-// Gets the color of the light from the main function
+// Gets the color and parameters of the light from the main function
 uniform vec4 lightColor;
-// Gets the position of the light from the main function
 uniform vec3 lightPos;
-// Gets the position of the camera from the main function
 uniform vec3 camPos;
+uniform int  uLightType;  // 0=Directional,1=Point,2=Spot
+uniform vec3 uLightDir;   // For directional & spot
+uniform float uSpotInner; // [0..1]
+uniform float uSpotOuter; // [0..1], <= inner
 
 
 vec4 pointLight()
@@ -56,55 +58,40 @@ vec4 pointLight()
 
 vec4 direcLight()
 {
-	// ambient lighting
-	float ambient = 0.20f;
-
-	// diffuse lighting
-	vec3 normal = normalize(Normal);
-	vec3 lightDirection = normalize(vec3(1.0f, 1.0f, 0.0f));
-	float diffuse = max(dot(normal, lightDirection), 0.0f);
-
-	// specular lighting
-	float specularLight = 0.50f;
-	vec3 viewDirection = normalize(camPos - crntPos);
-	vec3 reflectionDirection = reflect(-lightDirection, normal);
-	float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), 16);
-	float specular = specAmount * specularLight;
-
-	return (texture(diffuse0, texCoord) * (diffuse + ambient) + texture(specular0, texCoord).r * specular) * lightColor;
+    float ambient = 0.20f;
+    vec3 normal = normalize(Normal);
+    vec3 lightDirection = normalize(uLightDir);
+    float diffuse = max(dot(normal, lightDirection), 0.0f);
+    float specularLight = 0.50f;
+    vec3 viewDirection = normalize(camPos - crntPos);
+    vec3 reflectionDirection = reflect(-lightDirection, normal);
+    float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), 16);
+    float specular = specAmount * specularLight;
+    return (texture(diffuse0, texCoord) * (diffuse + ambient) + texture(specular0, texCoord).r * specular) * lightColor;
 }
 
 vec4 spotLight()
 {
-	// controls how big the area that is lit up is
-	float outerCone = 0.90f;
-	float innerCone = 0.95f;
-
-	// ambient lighting
-	float ambient = 0.20f;
-
-	// diffuse lighting
-	vec3 normal = normalize(Normal);
-	vec3 lightDirection = normalize(lightPos - crntPos);
-	float diffuse = max(dot(normal, lightDirection), 0.0f);
-
-	// specular lighting
-	float specularLight = 0.50f;
-	vec3 viewDirection = normalize(camPos - crntPos);
-	vec3 reflectionDirection = reflect(-lightDirection, normal);
-	float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), 16);
-	float specular = specAmount * specularLight;
-
-	// calculates the intensity of the crntPos based on its angle to the center of the light cone
-	float angle = dot(vec3(0.0f, -1.0f, 0.0f), -lightDirection);
-	float inten = clamp((angle - outerCone) / (innerCone - outerCone), 0.0f, 1.0f);
-
-	return (texture(diffuse0, texCoord) * (diffuse * inten + ambient) + texture(specular0, texCoord).r * specular * inten) * lightColor;
+    float ambient = 0.20f;
+    vec3 normal = normalize(Normal);
+    vec3 lightDirection = normalize(lightPos - crntPos);
+    float diffuse = max(dot(normal, lightDirection), 0.0f);
+    float specularLight = 0.50f;
+    vec3 viewDirection = normalize(camPos - crntPos);
+    vec3 reflectionDirection = reflect(-lightDirection, normal);
+    float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), 16);
+    float specular = specAmount * specularLight;
+    // angle to center of cone
+    float angle = dot(normalize(uLightDir), -lightDirection);
+    float inten = clamp((angle - uSpotOuter) / max(uSpotInner - uSpotOuter, 1e-5), 0.0f, 1.0f);
+    return (texture(diffuse0, texCoord) * (diffuse * inten + ambient) + texture(specular0, texCoord).r * specular * inten) * lightColor;
 }
 
 
 void main()
 {
-	// outputs final color
-	FragColor = direcLight();
+    // outputs final color based on selected light type
+    if (uLightType == 0)      FragColor = direcLight();
+    else if (uLightType == 1) FragColor = pointLight();
+    else                      FragColor = spotLight();
 }
