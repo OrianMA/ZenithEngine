@@ -1,8 +1,8 @@
-Package: stb
-Version: 2024-07-29
-Port-Version: 1
+Package: assimp
+Version: 5.4.3
+Depends: draco, jhasse-poly2tri, kubazip, minizip, polyclipping, pugixml, rapidjson, stb, utfcpp, vcpkg-cmake, vcpkg-cmake-config, zlib
 Architecture: x64-windows
 Multi-Arch: same
-Abi: 41db1bd3920a8ec7be1625524b8a75d8ae6fbc441b07af729f9b3f6a1e453e40
-Description: public domain header-only libraries
+Abi: a8675e24a02e6ebfc57a804444868800baff59f9ece9f9a15bc07b17ebe59548
+Description: The Open Asset import library
 Status: install ok installed

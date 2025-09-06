@@ -1,9 +1,8 @@
-Package: glm
-Version: 1.0.1
-Port-Version: 3
+Package: kubazip
+Version: 0.2.6
 Depends: vcpkg-cmake, vcpkg-cmake-config
 Architecture: x64-windows
 Multi-Arch: same
-Abi: c912f9045243b35c17cf7269ca20e4978f1c3b821fe80fe95bdab5520af018c9
-Description: OpenGL Mathematics (GLM)
+Abi: 32ac30295637aef4b249a4827ffc15869c33c8f84046bf489cb2e6438305e33e
+Description: A portable, simple zip library written in C
 Status: install ok installed

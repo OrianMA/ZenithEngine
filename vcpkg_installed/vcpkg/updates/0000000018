@@ -1,9 +1,8 @@
-Package: nlohmann-json
-Version: 3.11.3
-Port-Version: 1
+Package: draco
+Version: 1.5.7
 Depends: vcpkg-cmake, vcpkg-cmake-config
 Architecture: x64-windows
 Multi-Arch: same
-Abi: c5d115e736fe6ade477c0b17b63529f8ea7f58b3a0109a6bdd297a60276e8fd9
-Description: JSON for Modern C++
+Abi: c6d7530a5cd7611c296da979df2e6f29936df2e424a80bf5cc32524e2946e379
+Description: A library for compressing and decompressing 3D geometric meshes and point clouds. It is intended to improve the storage and transmission of 3D graphics.
 Status: install ok half-installed

@@ -1,6 +1,7 @@
-Package: glad
-Feature: loader
+Package: vcpkg-cmake-get-vars
+Version: 2023-12-31
+Depends: vcpkg-cmake
 Architecture: x64-windows
 Multi-Arch: same
-Description: Generate loader logic.
+Abi: 64384030aac034132b00a67b66098cec31c3be7c87b4a9707748621b87161a57
 Status: install ok installed

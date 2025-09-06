@@ -16,20 +16,25 @@ find_package(glm CONFIG REQUIRED)
 find_package(Stb REQUIRED)
 find_package(GTest CONFIG REQUIRED)
 find_package(assimp CONFIG REQUIRED)
+find_package(imgui CONFIG REQUIRED)
 
 # Collect all project source files (except the main executable source)
 file(GLOB_RECURSE ZENITHENGINE_SOURCES
     "src/ZenithEngine/*.cpp"
 )
 
-# Exclude the main executable source file
-list(REMOVE_ITEM ZENITHENGINE_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/ZenithEngine/ZenithEngine.cpp")
+# Exclude app/entry sources from the library
+list(REMOVE_ITEM ZENITHENGINE_SOURCES
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/ZenithEngine/ZenithEngine.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/ZenithEngine/ZenithApp.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/ZenithEngine/ImGuiLayer.cpp"
+)
 
 # Create a library for shared sources
 add_library(ZenithEngineLib ${ZENITHENGINE_SOURCES})
 
 # Link required libraries to the shared library
-target_link_libraries(ZenithEngineLib PRIVATE glfw glad::glad nlohmann_json::nlohmann_json glm::glm assimp::assimp)
+target_link_libraries(ZenithEngineLib PRIVATE glfw glad::glad nlohmann_json::nlohmann_json glm::glm assimp::assimp imgui::imgui)
 
 # Include project headers and dependencies
 target_include_directories(ZenithEngineLib PRIVATE
@@ -39,14 +44,18 @@ target_include_directories(ZenithEngineLib PRIVATE
 
 target_compile_definitions(ZenithEngineLib PRIVATE GLM_ENABLE_EXPERIMENTAL)
 
-# Create the main executable
-add_executable(ZenithEngine src/ZenithEngine/ZenithEngine.cpp)
-target_link_libraries(ZenithEngine PRIVATE ZenithEngineLib)
+# Create the main executable (hosts the app + ImGui layer)
+add_executable(ZenithEngine
+    src/ZenithEngine/ZenithEngine.cpp
+    src/ZenithEngine/ZenithApp.cpp
+    src/ZenithEngine/ImGuiLayer.cpp
+)
+target_link_libraries(ZenithEngine PRIVATE ZenithEngineLib imgui::imgui)
 target_include_directories(ZenithEngine PRIVATE
     src/ZenithEngine
     ${Stb_INCLUDE_DIR}
 )
-target_compile_definitions(ZenithEngine PRIVATE GLM_ENABLE_EXPERIMENTAL)
+target_compile_definitions(ZenithEngine PRIVATE GLM_ENABLE_EXPERIMENTAL IMGUI_IMPL_OPENGL_LOADER_GLAD)
 
 # Unit test configuration
 enable_testing()
@@ -77,4 +86,3 @@ target_compile_definitions(ZenithEngineTests PRIVATE GLM_ENABLE_EXPERIMENTAL)
 
 # Register tests with CTest
 add_test(NAME ZenithEngineTests COMMAND ZenithEngineTests)
-

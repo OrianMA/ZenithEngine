@@ -1,56 +1,37 @@
-# Build directories
-/build/
-/bin/
-/out/
-
-# Compiled object files
-*.o
-*.obj
-*.lo
-*.slo
-
-# Compiled dynamic libraries
-*.dll
-*.so
-*.dylib
-
-# Compiled static libraries
-*.lib
-*.a
-*.la
-
-# Executable files
-*.exe
-*.out
-*.app
-
-
-
-# IDE-specific files
-.vscode/
-*.code-workspace
-
-# Logs and temporary files
+# Build and IDE
+build/
+out/
+dist/
+bin/
+obj/
+.vs/
+CMakeCache.txt
+CMakeFiles/
+cmake-build-*/
+*.user
+*.opendb
+*.VC.db
 *.log
-*.tmp
-*.temp
-*.swp
 
-# System-specific files
+# Compiler artifacts
+*.pdb
+*.ilk
+*.obj
+*.o
+*.a
+*.lib
+*.dll
+*.exe
+*.exp
+
+# OS
 .DS_Store
 Thumbs.db
-desktop.ini
 
-# Dependency management
-node_modules/
-.vcpkg/
-vendor/
+# Vendor/cache
+vcpkg_installed/
+src/ZenithEngine/x64/
 
-# Archive files
-*.tar
-*.zip
-*.7z
-*.rar
+# Local test outputs
+tests/*.tmp
 
-ZenithEngine\.vs
-/ZenithEngine/.vs
