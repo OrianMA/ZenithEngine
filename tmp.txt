@@ -2,25 +2,9 @@
 
 #include <iostream>
 #include <filesystem>
-#include <cmath>
 
 
 static const std::string ASSETS_PATH = "../assets/";
-
-namespace {
-    // Build rotation matrix aligning +X to the given direction
-    glm::mat4 alignXToDir(const glm::vec3& dir)
-    {
-        glm::vec3 d = glm::normalize(dir);
-        glm::vec3 x(1.0f, 0.0f, 0.0f);
-        float cosA = glm::dot(x, d);
-        if (cosA > 0.9999f) return glm::mat4(1.0f);
-        if (cosA < -0.9999f) return glm::rotate(glm::mat4(1.0f), acosf(-1.0f), glm::vec3(0,1,0));
-        glm::vec3 axis = glm::normalize(glm::cross(x, d));
-        float angle = acosf(glm::clamp(cosA, -1.0f, 1.0f));
-        return glm::rotate(glm::mat4(1.0f), angle, axis);
-    }
-}
 
 void ZenithApp::drawCurrentModel(CurrentModel& cur, Shader& shaderProgram, Camera& camera,
                                  const glm::vec3& modelPos,
@@ -115,17 +99,6 @@ int ZenithApp::run()
     glm::vec3 lightDir = glm::vec3(0.0f, 0.0f, -1.0f); // default to "north"
     float spotInner = 0.95f;
     float spotOuter = 0.90f;
-    // Attenuation (for point lights) and gizmos toggle
-    float attenA = 0.032f; // quadratic
-    float attenB = 0.090f; // linear
-    float attenC = 1.000f; // constant
-    bool showGizmos = true;
-
-    // Model transform (position + uniform scale)
-    glm::vec3 modelPos = glm::vec3(0.0f);
-    float modelUniformScale = 1.0f;
-    glm::vec3 modelScale = glm::vec3(1.0f);
-    glm::quat modelRot = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
 
     // GL state
     glEnable(GL_DEPTH_TEST);
@@ -137,7 +110,7 @@ int ZenithApp::run()
     Camera camera(scrWidth, scrHeight, glm::vec3(0.0f, 0.0f, 2.0f));
 
     // Simple cube to visualize point light
-    GLuint lightVAO = 0, lightVBO = 0, lightEBO = 0; GLuint lineVAO = 0, lineVBO = 0;
+    GLuint lightVAO = 0, lightVBO = 0, lightEBO = 0;
     Shader lightShader((ASSETS_PATH + std::string("light.vert")).c_str(),
                        (ASSETS_PATH + std::string("light.frag")).c_str());
     {
@@ -161,16 +134,6 @@ int ZenithApp::run()
         glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, lightEBO);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-        glEnableVertexAttribArray(0);
-        glBindVertexArray(0);
-        // Unit line (from 0 to +X) for direction gizmos
-        float lineVerts[] = { 0.0f,0.0f,0.0f,  1.0f,0.0f,0.0f };
-        glGenVertexArrays(1, &lineVAO);
-        glGenBuffers(1, &lineVBO);
-        glBindVertexArray(lineVAO);
-        glBindBuffer(GL_ARRAY_BUFFER, lineVBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(lineVerts), lineVerts, GL_STATIC_DRAW);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
         glEnableVertexAttribArray(0);
         glBindVertexArray(0);
@@ -355,48 +318,20 @@ int ZenithApp::run()
         glUniform3f(glGetUniformLocation(shaderProgram.ID, "uLightDir"), lightDir.x, lightDir.y, lightDir.z);
         glUniform1f(glGetUniformLocation(shaderProgram.ID, "uSpotInner"), spotInner);
         glUniform1f(glGetUniformLocation(shaderProgram.ID, "uSpotOuter"), spotOuter);
-        glUniform1f(glGetUniformLocation(shaderProgram.ID, "uAttenA"), attenA);
-        glUniform1f(glGetUniformLocation(shaderProgram.ID, "uAttenB"), attenB);
-        glUniform1f(glGetUniformLocation(shaderProgram.ID, "uAttenC"), attenC);
 
-        drawCurrentModel(currentModel, shaderProgram, camera, modelPos, modelRot, modelScale);
+        drawCurrentModel(currentModel, shaderProgram, camera);
 
-        // Draw gizmos
-        if (showGizmos && lightType == LightType::Point) {
+        // Draw a tiny cube at point light position
+        if (lightType == LightType::Point) {
             lightShader.Activate();
             glUniform4f(glGetUniformLocation(lightShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
             camera.Matrix(lightShader, "camMatrix");
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::translate(model, lightPos);
-            model = glm::scale(model, glm::vec3(0.06f));
+            model = glm::scale(model, glm::vec3(0.03f));
             glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
             glBindVertexArray(lightVAO);
             glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-            glBindVertexArray(0);
-        }
-        if (showGizmos && lightType == LightType::Directional) {
-            lightShader.Activate();
-            glUniform4f(glGetUniformLocation(lightShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
-            camera.Matrix(lightShader, "camMatrix");
-            glm::vec3 start(0.0f);
-            glm::vec3 dir = glm::normalize(lightDir);
-            float len = 0.6f;
-            glm::mat4 model = glm::translate(glm::mat4(1.0f), start) * alignXToDir(dir) * glm::scale(glm::mat4(1.0f), glm::vec3(len,1,1));
-            glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
-            glBindVertexArray(lineVAO);
-            glDrawArrays(GL_LINES, 0, 2);
-            glBindVertexArray(0);
-        }
-        if (showGizmos && lightType == LightType::Spot) {
-            lightShader.Activate();
-            glUniform4f(glGetUniformLocation(lightShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
-            camera.Matrix(lightShader, "camMatrix");
-            glm::vec3 dir = glm::normalize(lightDir);
-            float len = 0.6f;
-            glm::mat4 model = glm::translate(glm::mat4(1.0f), lightPos) * alignXToDir(dir) * glm::scale(glm::mat4(1.0f), glm::vec3(len,1,1));
-            glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
-            glBindVertexArray(lineVAO);
-            glDrawArrays(GL_LINES, 0, 2);
             glBindVertexArray(0);
         }
 
@@ -456,23 +391,18 @@ int ZenithApp::run()
 
             if (lightType == LightType::Directional) {
                 ImGui::Text("Direction presets:");
-                if (ImGui::Button("Nord"))  lightDir = glm::vec3(0, 0, -1);
+                if (ImGui::Button("North"))  lightDir = glm::vec3(0, 0, -1);
                 ImGui::SameLine();
-                if (ImGui::Button("Sud"))   lightDir = glm::vec3(0, 0,  1);
+                if (ImGui::Button("South"))   lightDir = glm::vec3(0, 0,  1);
                 ImGui::SameLine();
-                if (ImGui::Button("Est"))   lightDir = glm::vec3(1, 0,  0);
+                if (ImGui::Button("East"))   lightDir = glm::vec3(1, 0,  0);
                 ImGui::SameLine();
-                if (ImGui::Button("Ouest")) lightDir = glm::vec3(-1, 0, 0);
-                ImGui::DragFloat3("Dir", (float*)&lightDir, 0.01f, -1.0f, 1.0f);
+                if (ImGui::Button("West")) lightDir = glm::vec3(-1, 0, 0);
             }
 
             if (lightType == LightType::Point) {
                 ImGui::Text("Point position:");
                 ImGui::DragFloat3("Pos", (float*)&lightPos, 0.01f);
-                ImGui::Text("Attenuation:");
-                ImGui::DragFloat("Quad A", &attenA, 0.01f, 0.0f, 10.0f);
-                ImGui::DragFloat("Lin B", &attenB, 0.01f, 0.0f, 10.0f);
-                ImGui::DragFloat("Const C", &attenC, 0.01f, 0.0f, 10.0f);
             }
 
             if (lightType == LightType::Spot) {
@@ -482,18 +412,6 @@ int ZenithApp::run()
                 ImGui::SliderFloat("Inner", &spotInner, 0.0f, 1.0f);
                 ImGui::SliderFloat("Outer", &spotOuter, 0.0f, spotInner);
             }
-            ImGui::Separator();
-            ImGui::Checkbox("Afficher gizmos", &showGizmos);
-        }
-        ImGui::End();
-
-        // Model transform window (position + uniform scale)
-        ImGui::SetNextWindowPos(ImVec2(10, 320), ImGuiCond_Once);
-        ImGui::SetNextWindowSize(ImVec2(260, 120), ImGuiCond_Once);
-        if (ImGui::Begin("Transform")) {
-            ImGui::DragFloat3("Position", (float*)&modelPos, 0.01f);
-            ImGui::DragFloat("Scale", &modelUniformScale, 0.01f, 0.01f, 10.0f);
-            modelScale = glm::vec3(modelUniformScale);
         }
         ImGui::End();
 
@@ -508,11 +426,4 @@ int ZenithApp::run()
     glfwTerminate();
     return 0;
 }
-
-
-
-
-
-
-
 

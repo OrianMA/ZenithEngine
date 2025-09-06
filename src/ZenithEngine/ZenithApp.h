@@ -29,5 +29,8 @@ private:
 
     using CurrentModel = std::variant<std::monostate, Model, FBXModel>;
 
-    void drawCurrentModel(CurrentModel& cur, Shader& shaderProgram, Camera& camera);
+    void drawCurrentModel(CurrentModel& cur, Shader& shaderProgram, Camera& camera,
+                          const glm::vec3& modelPos = glm::vec3(0.0f),
+                          const glm::quat& modelRot = glm::quat(1.0f,0.0f,0.0f,0.0f),
+                          const glm::vec3& modelScale = glm::vec3(1.0f));
 };

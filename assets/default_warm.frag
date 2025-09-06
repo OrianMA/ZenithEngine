@@ -16,13 +16,15 @@ uniform int  uLightType;
 uniform vec3 uLightDir;
 uniform float uSpotInner;
 uniform float uSpotOuter;
+uniform float uAttenA;
+uniform float uAttenB;
+uniform float uAttenC;
 
 vec4 pointLight()
 {
     vec3 lightVec = lightPos - crntPos;
     float dist = length(lightVec);
-    float a = 3.0; float b = 0.7;
-    float inten = 1.0f / (a * dist * dist + b * dist + 1.0f);
+    float inten = 1.0f / (uAttenA * dist * dist + uAttenB * dist + max(uAttenC, 1e-5));
     float ambient = 0.20f;
     vec3 normal = normalize(Normal);
     vec3 lightDirection = normalize(lightVec);
@@ -75,4 +77,3 @@ void main()
     col.rgb *= vec3(1.10, 0.95, 0.85);
     FragColor = col;
 }
-

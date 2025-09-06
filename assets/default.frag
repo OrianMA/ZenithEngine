@@ -25,6 +25,9 @@ uniform int  uLightType;  // 0=Directional,1=Point,2=Spot
 uniform vec3 uLightDir;   // For directional & spot
 uniform float uSpotInner; // [0..1]
 uniform float uSpotOuter; // [0..1], <= inner
+uniform float uAttenA;    // quadratic term
+uniform float uAttenB;    // linear term
+uniform float uAttenC;    // constant term
 
 
 vec4 pointLight()
@@ -33,10 +36,8 @@ vec4 pointLight()
 	vec3 lightVec = lightPos - crntPos;
 
 	// intensity of light with respect to distance
-	float dist = length(lightVec);
-	float a = 3.0;
-	float b = 0.7;
-	float inten = 1.0f / (a * dist * dist + b * dist + 1.0f);
+    float dist = length(lightVec);
+    float inten = 1.0f / (uAttenA * dist * dist + uAttenB * dist + max(uAttenC, 1e-5));
 
 	// ambient lighting
 	float ambient = 0.20f;
