@@ -16,7 +16,7 @@ public:
     explicit FBXModel(const char* path);
 
     // Draw all meshes of the model
-    void Draw(Shader& shader, Camera& camera);
+    void Draw(Shader& shader, Camera& camera, const glm::vec3& tr = glm::vec3(0.0f), const glm::quat& rq = glm::quat(1.0f,0.0f,0.0f,0.0f), const glm::vec3& sc = glm::vec3(1.0f));
 
     // Returns the number of meshes loaded in this model
     size_t meshCount() const;
@@ -33,3 +33,4 @@ private:
 };
 
 #endif
+

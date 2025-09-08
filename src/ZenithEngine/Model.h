@@ -13,7 +13,7 @@ public:
     // Loads a model from a file and stores the information in 'data', 'JSON', and 'file'
 	Model(const char* file);
 
-	void Draw(Shader& shader, Camera& camera);
+	void Draw(Shader& shader, Camera& camera, const glm::vec3& tr = glm::vec3(0.0f), const glm::quat& rq = glm::quat(1.0f,0.0f,0.0f,0.0f), const glm::vec3& sc = glm::vec3(1.0f));
 
 private:
 	// Variables for easy access
@@ -59,3 +59,4 @@ private:
 	std::vector<glm::vec4> groupFloatsVec4(std::vector<float> floatVec);
 };
 #endif
+

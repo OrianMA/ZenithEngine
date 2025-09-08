@@ -29,9 +29,9 @@ FBXModel::FBXModel(const char* path) {
     processNode(scene->mRootNode, scene, glm::mat4(1.0f));
 }
 
-void FBXModel::Draw(Shader& shader, Camera& camera) {
+void FBXModel::Draw(Shader& shader, Camera& camera, const glm::vec3& tr, const glm::quat& rq, const glm::vec3& sc){
     for (size_t i = 0; i < meshes.size(); ++i) {
-        meshes[i].Draw(shader, camera, matrices[i]);
+        meshes[i].Draw(shader, camera, matrices[i], tr, rq, sc);
     }
 }
 
@@ -219,3 +219,4 @@ unsigned int FBXModel::chooseUVChannel(aiMaterial* mat) const {
     }
     return 0;
 }
+
