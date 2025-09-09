@@ -138,3 +138,15 @@ cmake --build $BuildDir --config $Config
 Write-Section "Terminé"
 Write-Host "Binaire construit dans: $BuildDir" -ForegroundColor Green
 
+# Ensure build/<Config>/ALL_BUILD marker exists (for tools expecting it)
+Write-Section "Post-build markers"
+try {
+    $configDir = Join-Path $BuildDir $Config
+    $markerDir = Join-Path $configDir 'ALL_BUILD'
+    if (-not (Test-Path $markerDir)) { New-Item -ItemType Directory -Path $markerDir | Out-Null }
+    $placeholder = Join-Path $markerDir '.placeholder'
+    if (-not (Test-Path $placeholder)) { New-Item -ItemType File -Path $placeholder | Out-Null }
+    Write-Step "Created/checked: $markerDir"
+} catch {
+    Write-Warn "Could not create ALL_BUILD marker folder: $_"
+}

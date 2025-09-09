@@ -86,3 +86,17 @@ target_compile_definitions(ZenithEngineTests PRIVATE GLM_ENABLE_EXPERIMENTAL)
 
 # Register tests with CTest
 add_test(NAME ZenithEngineTests COMMAND ZenithEngineTests)
+
+# -----------------------------------------------------------------------------
+# Create a marker directory under build/<Config>/ALL_BUILD so tools expecting
+# a per-config ALL_BUILD folder can detect it after a solution build.
+# This attaches a tiny custom target to the generator's ALL_BUILD target.
+# Only applicable to Visual Studio multi-config generators.
+if (CMAKE_GENERATOR MATCHES "Visual Studio")
+    add_custom_target(create_all_build_marker
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/$<CONFIG>/ALL_BUILD"
+        COMMAND ${CMAKE_COMMAND} -E touch "${CMAKE_BINARY_DIR}/$<CONFIG>/ALL_BUILD/.placeholder"
+        COMMENT "Ensuring build/$<CONFIG>/ALL_BUILD marker exists"
+    )
+    add_dependencies(ALL_BUILD create_all_build_marker)
+endif()
