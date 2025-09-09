@@ -22,6 +22,17 @@
 
 ### Build Instructions
 
+On Windows, the easiest way to get started is to run the provided
+`InstallAndBuild.cmd` script. It will install the required build tools and
+dependencies via **vcpkg**, then configure and build the project:
+
+```bat
+InstallAndBuild.cmd
+```
+
+If you prefer to configure the project manually or are on another platform,
+you can follow the standard CMake workflow:
+
 ```sh
 # Clone the repository
  git clone --recursive <repo_url>
