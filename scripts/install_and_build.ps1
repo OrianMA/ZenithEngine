@@ -2,7 +2,8 @@ param(
     [ValidateSet("Debug", "Release")]
     [string]$Config = "Release",
     [ValidateSet("x64", "Win32", "arm64")]
-    [string]$Arch = "x64"
+    [string]$Arch = "x64",
+    [switch]$Run
 )
 
 $ErrorActionPreference = "Stop"
@@ -29,6 +30,7 @@ $RepoRoot = Split-Path -Parent $PSScriptRoot
 $BuildDir = Join-Path $RepoRoot "build"
 $VcpkgDir  = Join-Path $RepoRoot "vcpkg"
 $Toolchain = Join-Path $VcpkgDir  "scripts\buildsystems\vcpkg.cmake"
+$InstallDir = Join-Path $RepoRoot "dist"
 
 function Test-Command($name) { return [bool](Get-Command $name -ErrorAction SilentlyContinue) }
 
@@ -134,6 +136,27 @@ cmake -S $RepoRoot -B $BuildDir -G "$generator" -A $Arch $toolchainArg
 
 Write-Step "Build ($Config)"
 cmake --build $BuildDir --config $Config
+
+Write-Section "Installation (runtime portable)"
+if (-not (Test-Path $InstallDir)) { New-Item -ItemType Directory -Path $InstallDir | Out-Null }
+cmake --install $BuildDir --config $Config --prefix $InstallDir
+
+Write-Host "Dossier exécutable portable: $InstallDir\\bin" -ForegroundColor Green
+
+if ($Run) {
+    Write-Section "Lancement de ZenithEngine"
+    $exe = Join-Path $InstallDir "bin\\ZenithEngine.exe"
+    if (-not (Test-Path $exe)) {
+        Write-Warning "Exécutable introuvable: $exe"
+    } else {
+        $psi = New-Object System.Diagnostics.ProcessStartInfo
+        $psi.FileName = $exe
+        $psi.WorkingDirectory = (Join-Path $InstallDir 'bin')
+        $psi.UseShellExecute = $true
+        [System.Diagnostics.Process]::Start($psi) | Out-Null
+        Write-Host "Lancé: $exe (WD: $($psi.WorkingDirectory))" -ForegroundColor Green
+    }
+}
 
 Write-Section "Terminé"
 Write-Host "Binaire construit dans: $BuildDir" -ForegroundColor Green

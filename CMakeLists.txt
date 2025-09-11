@@ -8,6 +8,13 @@ project(ZenithEngine VERSION 1.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Helpful defaults for Visual Studio solutions
+# - Set ZenithEngine as the startup project to avoid ALL_BUILD confusion
+# - Ensure debugger working directory resolves assets correctly
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ZenithEngine)
+
+include(GNUInstallDirs)
+
 # Dependencies resolved via vcpkg
 find_package(glfw3 CONFIG REQUIRED)
 find_package(glad CONFIG REQUIRED)
@@ -57,6 +64,9 @@ target_include_directories(ZenithEngine PRIVATE
 )
 target_compile_definitions(ZenithEngine PRIVATE GLM_ENABLE_EXPERIMENTAL IMGUI_IMPL_OPENGL_LOADER_GLAD)
 
+# Visual Studio: run from target output dir so ../assets resolves when debugging
+set_target_properties(ZenithEngine PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_FILE_DIR:ZenithEngine>")
+
 # Unit test configuration
 enable_testing()
 
@@ -86,3 +96,20 @@ target_compile_definitions(ZenithEngineTests PRIVATE GLM_ENABLE_EXPERIMENTAL)
 
 # Register tests with CTest
 add_test(NAME ZenithEngineTests COMMAND ZenithEngineTests)
+
+# Install rules: stage executable and assets in a portable layout
+# Resulting tree (prefix = install dir):
+#   <prefix>/bin/ZenithEngine[.exe]
+#   <prefix>/assets/*           (so ../assets from bin works)
+install(TARGETS ZenithEngine
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+install(DIRECTORY assets
+    DESTINATION .
+)
+
+# Optional packaging support (e.g., cpack -G ZIP)
+set(CPACK_PACKAGE_NAME "ZenithEngine")
+set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION}")
+set(CPACK_GENERATOR "ZIP")
+include(CPack)
