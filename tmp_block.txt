@@ -1,0 +1,57 @@
+    // Presets list
+    std::vector<Preset> presets = {
+        {"Violin (FBX)", ASSETS_PATH + std::string("Models/Violin/Violin.fbx"), Preset::Type::FBX},
+        {"TestModel (FBX)", ASSETS_PATH + std::string("Models/TestModelFBX/TestModel.fbx"), Preset::Type::FBX},
+        {"Adam Head (GLTF)", ASSETS_PATH + std::string("Models/adamHead/adamHead.gltf"), Preset::Type::GLTF},
+        {"BoomBox (GLTF)", ASSETS_PATH + std::string("Models/boomBox/BoomBox.gltf"), Preset::Type::GLTF},
+        {"Trees (GLTF)", ASSETS_PATH + std::string("Models/trees/scene.gltf"), Preset::Type::GLTF},
+    };
+
+    int selectedPreset = -1;
+    CurrentModel currentModel = std::monostate{};
+
+    auto loadPreset = [&](int idx){
+        if (idx < 0 || idx >= (int)presets.size()) return;
+        const Preset& p = presets[idx];
+
+        // Validate file exists before attempting to load
+        if (!std::filesystem::exists(p.path)) {
+            std::cerr << "[Load] File does not exist: " << p.path << "\n";
+            return;
+        }
+
+        bool loaded = false;
+        if (p.type == Preset::Type::GLTF) {
+            try {
+                // Construct in-place; if constructor throws, variant remains unchanged
+                currentModel.emplace<Model>(p.path.c_str());
+                loaded = true;
+            } catch (const std::exception& e) {
+                std::cerr << "[Load] Failed to load GLTF model: " << p.path << " | " << e.what() << "\n";
+            } catch (...) {
+                std::cerr << "[Load] Failed to load GLTF model: " << p.path << " | unknown error\n";
+            }
+        } else {
+            try {
+                // Build a temporary FBXModel to verify it actually has meshes
+                FBXModel tmp(p.path.c_str());
+                if (tmp.meshCount() == 0) {
+                    std::cerr << "[Load] FBX has 0 meshes (skipping): " << p.path << "\n";
+                } else {
+                    currentModel = std::move(tmp);
+                    loaded = true;
+                }
+            } catch (const std::exception& e) {
+                std::cerr << "[Load] Failed to load FBX model: " << p.path << " | " << e.what() << "\n";
+            } catch (...) {
+                std::cerr << "[Load] Failed to load FBX model: " << p.path << " | unknown error\n";
+            }
+        }
+
+        if (loaded) {
+            selectedPreset = idx;
+        } else {
+            // Keep previous state unchanged on failure
+            std::cerr << "[Load] Keeping previous model (load failed).\n";
+        }
+    };

@@ -3,6 +3,7 @@
 #include <iostream>
 #include <filesystem>
 #include <cmath>
+#include <algorithm>
 
 
 static const std::string ASSETS_PATH = "../assets/";
@@ -139,11 +140,19 @@ int ZenithApp::run()
     float attenC = 1.000f; // constant
     bool showGizmos = true;
 
-    // Model transform (position + uniform scale)
-    glm::vec3 modelPos = glm::vec3(0.0f);
-    float modelUniformScale = 1.0f;
-    glm::vec3 modelScale = glm::vec3(1.0f);
-    glm::quat modelRot = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+    // Scene instances: each spawned object has its own transform + model
+    struct Instance {
+        int id;
+        std::string name; // preset name
+        int presetIndex;  // index into presets
+        CurrentModel model; // concrete Model or FBXModel
+        glm::vec3 position{0.0f, 0.0f, 0.0f};
+        glm::vec3 rotationEulerDeg{0.0f, 0.0f, 0.0f};
+        glm::vec3 scale{1.0f, 1.0f, 1.0f};
+    };
+    std::vector<Instance> instances;
+    int nextInstanceId = 1;
+    int focusInstanceId = -1; // focus newly created inspector window
 
     // GL state
     glEnable(GL_DEPTH_TEST);
@@ -204,52 +213,44 @@ int ZenithApp::run()
     };
 
     int selectedPreset = -1;
-    CurrentModel currentModel = std::monostate{};
 
-    auto loadPreset = [&](int idx){
+    auto spawnInstance = [&](int idx){
         if (idx < 0 || idx >= (int)presets.size()) return;
         const Preset& p = presets[idx];
 
         // Validate file exists before attempting to load
         if (!std::filesystem::exists(p.path)) {
-            std::cerr << "[Load] File does not exist: " << p.path << "\n";
+            std::cerr << "[Spawn] File does not exist: " << p.path << "\n";
             return;
         }
 
-        bool loaded = false;
-        if (p.type == Preset::Type::GLTF) {
-            try {
-                // Construct in-place; if constructor throws, variant remains unchanged
-                currentModel.emplace<Model>(p.path.c_str());
-                loaded = true;
-            } catch (const std::exception& e) {
-                std::cerr << "[Load] Failed to load GLTF model: " << p.path << " | " << e.what() << "\n";
-            } catch (...) {
-                std::cerr << "[Load] Failed to load GLTF model: " << p.path << " | unknown error\n";
-            }
-        } else {
-            try {
-                // Build a temporary FBXModel to verify it actually has meshes
+        Instance inst{};
+        inst.id = nextInstanceId++;
+        inst.name = p.name;
+        inst.presetIndex = idx;
+        try {
+            if (p.type == Preset::Type::GLTF) {
+                inst.model = Model(p.path.c_str());
+            } else {
                 FBXModel tmp(p.path.c_str());
                 if (tmp.meshCount() == 0) {
-                    std::cerr << "[Load] FBX has 0 meshes (skipping): " << p.path << "\n";
-                } else {
-                    currentModel = std::move(tmp);
-                    loaded = true;
+                    std::cerr << "[Spawn] FBX has 0 meshes (skipping): " << p.path << "\n";
+                    return;
                 }
-            } catch (const std::exception& e) {
-                std::cerr << "[Load] Failed to load FBX model: " << p.path << " | " << e.what() << "\n";
-            } catch (...) {
-                std::cerr << "[Load] Failed to load FBX model: " << p.path << " | unknown error\n";
+                inst.model = std::move(tmp);
             }
+        } catch (const std::exception& e) {
+            std::cerr << "[Spawn] Failed: " << p.path << " | " << e.what() << "\n";
+            return;
+        } catch (...) {
+            std::cerr << "[Spawn] Unknown error loading: " << p.path << "\n";
+            return;
         }
 
-        if (loaded) {
-            selectedPreset = idx;
-        } else {
-            // Keep previous state unchanged on failure
-            std::cerr << "[Load] Keeping previous model (load failed).\n";
-        }
+        instances.emplace_back(std::move(inst));
+        selectedPreset = idx;
+        focusInstanceId = instances.back().id;
+        std::cout << "[Spawn] Instance #" << focusInstanceId << " of '" << p.name << "'\n";
     };
 
     // ImGui setup
@@ -383,7 +384,14 @@ int ZenithApp::run()
         glUniform1f(glGetUniformLocation(shaderProgram.ID, "uGrayAmount"), uGrayAmount);
         glUniform1f(glGetUniformLocation(shaderProgram.ID, "uToonLevels"), uToonLevels);
 
-        drawCurrentModel(currentModel, shaderProgram, camera, modelPos, modelRot, modelScale);
+        // Draw all instances
+        for (auto& inst : instances) {
+            glm::quat qx = glm::angleAxis(glm::radians(inst.rotationEulerDeg.x), glm::vec3(1,0,0));
+            glm::quat qy = glm::angleAxis(glm::radians(inst.rotationEulerDeg.y), glm::vec3(0,1,0));
+            glm::quat qz = glm::angleAxis(glm::radians(inst.rotationEulerDeg.z), glm::vec3(0,0,1));
+            glm::quat rot = glm::normalize(qz * qy * qx);
+            drawCurrentModel(inst.model, shaderProgram, camera, inst.position, rot, inst.scale);
+        }
 
         // Draw gizmos
         if (showGizmos && lightType == LightType::Point) {
@@ -425,20 +433,23 @@ int ZenithApp::run()
         }
 
         ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_Once);
-        ImGui::SetNextWindowSize(ImVec2(260, 300), ImGuiCond_Once);
+        ImGui::SetNextWindowSize(ImVec2(280, 320), ImGuiCond_Once);
         if (ImGui::Begin("Models")) {
             for (int i = 0; i < (int)presets.size(); ++i) {
+                ImGui::PushID(i);
                 bool isSelected = (i == selectedPreset);
                 if (ImGui::Selectable(presets[i].name.c_str(), isSelected)) {
-                    std::cout << "Loading preset: " << presets[i].name << std::endl;
-                    loadPreset(i);
+                    selectedPreset = i;
                 }
+                ImGui::SameLine();
+                if (ImGui::SmallButton("Spawn")) {
+                    spawnInstance(i);
+                }
+                ImGui::PopID();
             }
-            if (ImGui::Button("Unload Model")) {
-                // Idempotent unload: reset to empty state
-                currentModel = std::monostate{};
-                selectedPreset = -1;
-                std::cerr << "[Unload] Model cleared.\n";
+            ImGui::Separator();
+            if (ImGui::Button("Spawn Selected") && selectedPreset >= 0) {
+                spawnInstance(selectedPreset);
             }
         }
         ImGui::End();
@@ -519,15 +530,31 @@ int ZenithApp::run()
         }
         ImGui::End();
 
-        // Model transform window (position + uniform scale)
-        ImGui::SetNextWindowPos(ImVec2(10, 320), ImGuiCond_Once);
-        ImGui::SetNextWindowSize(ImVec2(260, 120), ImGuiCond_Once);
-        if (ImGui::Begin("Transform")) {
-            ImGui::DragFloat3("Position", (float*)&modelPos, 0.01f);
-            ImGui::DragFloat("Scale", &modelUniformScale, 0.01f, 0.01f, 10.0f);
-            modelScale = glm::vec3(modelUniformScale);
+        // Per-instance inspector windows (position, rotation, scale, Destroy)
+        std::vector<int> toRemove;
+        for (auto& inst : instances) {
+            if (focusInstanceId == inst.id) {
+                ImGui::SetNextWindowFocus();
+                focusInstanceId = -1;
+            }
+            std::string title = std::string("Object: ") + inst.name + "##" + std::to_string(inst.id);
+            if (ImGui::Begin(title.c_str())) {
+                ImGui::Text("ID: %d", inst.id);
+                ImGui::DragFloat3("Position", (float*)&inst.position, 0.01f);
+                ImGui::DragFloat3("Rotation (deg)", (float*)&inst.rotationEulerDeg, 0.1f);
+                ImGui::DragFloat3("Scale", (float*)&inst.scale, 0.01f, 0.001f, 100.0f);
+                if (ImGui::Button("Destroy")) {
+                    toRemove.push_back(inst.id);
+                }
+            }
+            ImGui::End();
         }
-        ImGui::End();
+
+        if (!toRemove.empty()) {
+            instances.erase(std::remove_if(instances.begin(), instances.end(), [&](const Instance& x){
+                return std::find(toRemove.begin(), toRemove.end(), x.id) != toRemove.end();
+            }), instances.end());
+        }
 
         imgui.endFrame();
 
