@@ -6,7 +6,7 @@
 #include <algorithm>
 
 
-static const std::string ASSETS_PATH = "../assets/";
+static const std::string ASSETS_PATH = "C:/Users/orian/Documents/GitHub/ZenithEngine/assets/";
 
 namespace {
     // Build rotation matrix aligning +X to the given direction
@@ -206,8 +206,8 @@ int ZenithApp::run()
     // Presets list
     std::vector<Preset> presets = {
         {"Violin (FBX)", ASSETS_PATH + std::string("Models/Violin/Violin.fbx"), Preset::Type::FBX},
-        {"TestModel (FBX)", ASSETS_PATH + std::string("Models/TestModelFBX/TestModel.fbx"), Preset::Type::FBX},
-        {"Adam Head (GLTF)", ASSETS_PATH + std::string("Models/adamHead/adamHead.gltf"), Preset::Type::GLTF},
+        {"Dragon (FBX)", ASSETS_PATH + std::string("Models/Dragon/Dragon.fbx"), Preset::Type::FBX},
+        {"SnowTerrain (FBX)", ASSETS_PATH + std::string("Models/SnowTerrain/SnowTerrain.fbx"), Preset::Type::FBX},
         {"BoomBox (GLTF)", ASSETS_PATH + std::string("Models/boomBox/BoomBox.gltf"), Preset::Type::GLTF},
         {"Trees (GLTF)", ASSETS_PATH + std::string("Models/trees/scene.gltf"), Preset::Type::GLTF},
     };
